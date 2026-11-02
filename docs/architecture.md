@@ -98,7 +98,7 @@ sequenceDiagram
     participant S as render_server (Blender)
     participant X as explorer (host)
     H->>S: QUEUE/req-NNNN.json {n, yaw, pitch, out_dir}
-    S->>S: eye calibration for (yaw, pitch), fixed head; render L and R (Cycles, 64 spp)
+    S->>S: eye calibration for (yaw, pitch), fixed head, then render L and R (Cycles, 64 spp)
     S-->>H: calibration.json, raw_L.exr, raw_R.exr, then QUEUE/done-NNNN.json
     H->>H: check: head pose unchanged, rendered gaze == requested gaze
     H->>X: load_observation -> reconstruct (PERFECT correspondence + spherical triangulation)
