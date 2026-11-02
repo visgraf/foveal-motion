@@ -11,6 +11,9 @@ It was checked against fresh runs of this repository on the workstation that hol
     .venv/bin/python tools/greedy_foveal/run.py checks  --run runs/smoke
     .venv/bin/python tools/greedy_foveal/compare.py check --run runs/smoke
 
+Record (2026-11-02, RTX 4090, Blender 5.2.1): a 75-fixation smoke run and a full run (`--max-fix 600 --spp 64`) of
+commit `3bc0943` both PASS `compare.py check` against this file, the full run on all 356 fixations and the final map.
+
 Without the file (or with `--signature` pointing at a missing file), `compare.py check` runs only the literal checks
 (the full-run numbers 356 / 315 / 40 / 100.00 % / 99.26 % / 16,943,073 surfels, or, for a smoke run, fixation 1
 initial and 2–75 local) and says that the signature comparison did not run.

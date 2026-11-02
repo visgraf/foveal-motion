@@ -67,8 +67,8 @@ replaced by `products_unchanged_since_freeze`. The other checks are unchanged.
 
 `compare.py check` compares a run of this repository with the frozen f3d-vision run through its signature. The
 extraction is confirmed when, on the f3d-vision workstation (same GPU, driver and Blender), a 75-fixation smoke run and
-a full run of this repository both pass, against the signature committed in `tests/known-answer/`. The commands are in
-`tests/known-answer/README.md`.
+a full run of this repository both pass. Both did on 2026-11-02 (commit `3bc0943`, RTX 4090, Blender 5.2.1), against
+the signature committed in `tests/known-answer/`; the commands and the record are in `tests/known-answer/README.md`.
 
 ## License
 
