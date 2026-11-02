@@ -1,0 +1,15 @@
+# Runs and figures are regenerable: the command is the artifact.
+runs/
+visuals/
+.venv/
+__pycache__/
+*.pyc
+
+# The Classroom scene is downloaded and rebuilt by scripts/setup_scene.sh (CC0, ~150 MB);
+# only its manifest is tracked.
+scenes/classroom/*
+!scenes/classroom/ASSET_MANIFEST.json
+*.blend
+*.blend1
+*.exr
+*.zip

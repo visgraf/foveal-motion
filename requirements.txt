@@ -1,0 +1,12 @@
+# Host-side dependencies (the repository .venv):
+#
+#     python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+#
+# Pinned to the versions that produced the baseline numbers in f3d-vision.  Blender-side scripts
+# (render_server.py, scene_preflight.py, place_eye.py) run inside Blender's own Python and need nothing from here.
+#
+# Also required, and not installable from here: Blender 5.2.1 on PATH as `blender`, with an NVIDIA RTX
+# (OPTIX) GPU; and the DejaVu fonts for the overview figure (Debian/Ubuntu: fonts-dejavu-core).
+
+numpy==2.2.6
+pillow==12.3.0

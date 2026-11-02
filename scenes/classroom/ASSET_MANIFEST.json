@@ -1,0 +1,765 @@
+{
+ "schema": "fov3d-classroom-asset-manifest-v1",
+ "scene_dir": "scenes/classroom",
+ "golden_run_input": "scenes/classroom/classroom_eye.blend",
+ "accepted_classroom_eye_blend_sha256": "dca66a3257b909aef00b0331652c55f62a93a8dff0665d070fba7efa436953cc",
+ "source": {
+  "url": "https://download.blender.org/demo/test/classroom.zip",
+  "md5": "3adbb7114b514bfc6fc724ce20f86b4e",
+  "bytes": 70279690,
+  "license": "CC0",
+  "author": "Christophe Seux",
+  "note": "scripts/setup_scene.sh downloads the zip (or takes it as its argument) and checks this md5 before unpacking"
+ },
+ "method": "files: every regular file under scenes/classroom/ (except this manifest), sha256 over bytes. references: Blender 5.2.1 opened classroom_eye.blend; bpy.data.libraries, and every image/font/sound/movieclip/volume/cache_file/text with a filepath, resolved with bpy.path.abspath(path, library=owner) so paths inside linked libraries resolve relative to their own .blend; material/world/node-group node filepaths; plus bpy.utils.blend_paths(absolute=True, local=False). 11 libraries and 49 image datablocks (36 distinct files) resolved; 0 references outside scenes/classroom/.",
+ "counts": {
+  "files": 54,
+  "required": 48,
+  "optional": 6,
+  "by_role": {
+   "direct_input": 1,
+   "generator_source": 1,
+   "linked_library": 11,
+   "linked_texture": 36,
+   "unreferenced_payload": 5
+  },
+  "nominal_unused": 1,
+  "total_bytes": 156901416,
+  "required_bytes": 112010409
+ },
+ "files": [
+  {
+   "path": "ReadMe.txt",
+   "bytes": 1098,
+   "sha256": "12a546e6d33ec1d3280182cf5dfbb931aceda27e0fe30d37a173bedf2ce9586f",
+   "role": "unreferenced_payload",
+   "required": false,
+   "note": "present in the scene directory but referenced by no library, image or node path of classroom_eye.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/__ENV/Garage/Garage.hdr",
+   "bytes": 6307968,
+   "sha256": "bb90652c01fe31e6a9d79e16bf8ba7ee0aca9e8ee2226091c6a1bd20f61740d3",
+   "role": "unreferenced_payload",
+   "required": false,
+   "note": "present in the scene directory but referenced by no library, image or node path of classroom_eye.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/books/books.blend",
+   "bytes": 1002324,
+   "sha256": "e64070311d5298200308e2e4f6934d24ff3e23d87f4b81a29b565f1bbd4482dd",
+   "role": "linked_library",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blender_library": "lib.009",
+   "blend_reference": "//assets/books/books.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/books/textures/zapBook.jpg",
+   "bytes": 829510,
+   "sha256": "62218314b5d70bb1c34a1cea99ee634f7b34060dda526acd0c2612e784dcbe9a",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/books/books.blend"
+   ],
+   "blend_references": [
+    "//textures/zapBook.jpg"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/chairs/chairs.blend",
+   "bytes": 1182132,
+   "sha256": "8fccd6246902c39a3a11ce7c5e1764334efae84c1880c7291313b035af570888",
+   "role": "linked_library",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blender_library": "lib.001",
+   "blend_reference": "//assets/chairs/chairs.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/coatStand/coatStand.blend",
+   "bytes": 886076,
+   "sha256": "b7b4107b0225f6f523776dbc002f76fae4794c9f917a9a795c68a2711a1bd864",
+   "role": "linked_library",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blender_library": "lib.002",
+   "blend_reference": "//assets/coatStand/coatStand.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/desks/desks.blend",
+   "bytes": 1487572,
+   "sha256": "1b14411d8c426902de78abf530be6861b5ee3ba076b77cfcbd715d6f873a552a",
+   "role": "linked_library",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blender_library": "lib.003",
+   "blend_reference": "//assets/desks/desks.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/dustBin/dustBin.blend",
+   "bytes": 798752,
+   "sha256": "0d54233933e5e3c1fbb397b5a1188e4f17c18d7d401a3f16b8601b2d90deaf49",
+   "role": "linked_library",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blender_library": "lib.004",
+   "blend_reference": "//assets/dustBin/dustBin.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/dustBin/textures/dustbin_wireframe.png",
+   "bytes": 8405880,
+   "sha256": "f300d1c39b357dce772c86ab35481bdc35a8a677dca63d2be000011ee64631ac",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/dustBin/dustBin.blend"
+   ],
+   "blend_references": [
+    "//textures/dustbin_wireframe.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/lamps/lamps.blend",
+   "bytes": 2189516,
+   "sha256": "f54ae226615ac19a7572532aa3aa1044998d32633f8da3265c20a470b385b154",
+   "role": "linked_library",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blender_library": "lib",
+   "blend_reference": "//assets/lamps/lamps.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/officeSupplies/officeSupplies.blend",
+   "bytes": 2226812,
+   "sha256": "01d38109a8345242a643b25c8c12cebb2347cf6d3b98a8141e8a33030fc3d352",
+   "role": "linked_library",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blender_library": "lib.010",
+   "blend_reference": "//assets/officeSupplies/officeSupplies.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/officeSupplies/textures/eraser.jpg",
+   "bytes": 92400,
+   "sha256": "a369041d6fb534835d51ef5cc6a9fc5f99fa42c0865facc9491489787e16c473",
+   "role": "unreferenced_payload",
+   "required": false,
+   "note": "present in the scene directory but referenced by no library, image or node path of classroom_eye.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/officeSupplies/textures/pencil_brandMask.png",
+   "bytes": 2115697,
+   "sha256": "ef78927f870e210b6dc728e86af8df018d00bc47975910a81c9b3471de1c6c98",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/officeSupplies/officeSupplies.blend"
+   ],
+   "blend_references": [
+    "//textures/pencil_brandMask.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/officeSupplies/textures/pencil_color.png",
+   "bytes": 2115697,
+   "sha256": "f883c85aac4696373351f790d0462f910e27b6a403acbbb4aa9e6edd3559ad02",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/officeSupplies/officeSupplies.blend"
+   ],
+   "blend_references": [
+    "//textures/pencil_color.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/officeSupplies/textures/pencil_colorMask.png",
+   "bytes": 2115697,
+   "sha256": "ecbb7bf0f2be12ef8fcb090db8f371c74b58beb629648eb2dd4fd101b265c22b",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/officeSupplies/officeSupplies.blend"
+   ],
+   "blend_references": [
+    "//textures/pencil_colorMask.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/officeSupplies/textures/pencil_glossyMask.png",
+   "bytes": 2115697,
+   "sha256": "3d921736125d76624194b1fe09bc7c9e0c6fc9eb70d041c73561367e838ba2d9",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/officeSupplies/officeSupplies.blend"
+   ],
+   "blend_references": [
+    "//textures/pencil_glossyMask.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/radiator/radiator.blend",
+   "bytes": 1849572,
+   "sha256": "8114445192611935726e56a97a5597f677691fa0cac41470d98c96352186ad4c",
+   "role": "linked_library",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blender_library": "lib.005",
+   "blend_reference": "//assets/radiator/radiator.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/radiator/textures/radiator_AO.png",
+   "bytes": 4210936,
+   "sha256": "a5ed17de8e17895daa650a88c4f6be1e78d66042f62156bf768f784fddfc22c8",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/radiator/radiator.blend"
+   ],
+   "blend_references": [
+    "//textures/radiator_AO.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/suitcase/suitcase.blend",
+   "bytes": 2020944,
+   "sha256": "fdf6b9939ac6e9a14ceddf9ce1e6aad210d396d635fecd5212afbebd386be192",
+   "role": "linked_library",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blender_library": "lib.006",
+   "blend_reference": "//assets/suitcase/suitcase.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/wallClock/textures/wallClock.png",
+   "bytes": 3165437,
+   "sha256": "1578b03f1fb94ca5f54ac426b588f3e0649367e0fb35aad8ffc44faf72af3576",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/wallClock/wallClock.blend"
+   ],
+   "blend_references": [
+    "//textures/wallClock.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/wallClock/wallClock.blend",
+   "bytes": 1036928,
+   "sha256": "7e71d76235d5072695ea5cf783e48e7354e2a7bd297f93c06cbf15aa405269f3",
+   "role": "linked_library",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blender_library": "lib.007",
+   "blend_reference": "//assets/wallClock/wallClock.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/wastes/textures/crinkledPaper.png",
+   "bytes": 4210950,
+   "sha256": "cb8931e5268669e93158018401d28c13f27f2cb1d43cb7eb20cec5d0083c4294",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/wastes/wastes.blend"
+   ],
+   "blend_references": [
+    "//textures/crinkledPaper.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/wastes/textures/crinkledPaper_02.png",
+   "bytes": 4210950,
+   "sha256": "60cf4552548d57c1a0692e50079807a149d3bb7aad9f88c6268ac24b9b1a8544",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/wastes/wastes.blend"
+   ],
+   "blend_references": [
+    "//textures/crinkledPaper_02.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/wastes/textures/crinkledPaper_03.png",
+   "bytes": 4210950,
+   "sha256": "bcd999878a829e3c1919dfc94285b533e776d8f425198d2d93f8695c2c29d12a",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/wastes/wastes.blend"
+   ],
+   "blend_references": [
+    "//textures/crinkledPaper_03.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "assets/wastes/wastes.blend",
+   "bytes": 867496,
+   "sha256": "830258380dc4af157ffcfe63f99e5c64e415a05e1144dda055ed98b90c11b5f9",
+   "role": "linked_library",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blender_library": "lib.008",
+   "blend_reference": "//assets/wastes/wastes.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "classroom.blend",
+   "bytes": 32045332,
+   "sha256": "5c526ea3f280566e80253673c9955640527cd0f247ea41b1742620b5bc39f7a4",
+   "role": "generator_source",
+   "required": false,
+   "note": "input to tools/place_eye.py; not opened by the golden run",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "classroom_eye.blend",
+   "bytes": 32039274,
+   "sha256": "dca66a3257b909aef00b0331652c55f62a93a8dff0665d070fba7efa436953cc",
+   "role": "direct_input",
+   "required": true,
+   "consumed_by": "classroom_oracle1_public.SCENE -> blender -b <scene> -P tools/classroom_oracle1_render.py",
+   "generated_by": "tools/place_eye.py from classroom.blend (--location -0.6 -1.0 1.2 --yaw 0)",
+   "provenance": "the f3d-vision file, generated 2026-09-12 (this sha256); scripts/setup_scene.sh regenerates it and reports whether its sha256 matches"
+  },
+  {
+   "path": "textures/_baseTextures/base_bareMetal.png",
+   "bytes": 3164947,
+   "sha256": "083ea18b6d955473fef2e0b4df3b4eda64df4706e1a06b67f34ced8e03c2722c",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/chairs/chairs.blend",
+    "assets/coatStand/coatStand.blend",
+    "assets/desks/desks.blend",
+    "assets/dustBin/dustBin.blend",
+    "assets/lamps/lamps.blend",
+    "assets/suitcase/suitcase.blend"
+   ],
+   "blend_references": [
+    "//../../textures/_baseTextures/base_bareMetal.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/_baseTextures/base_bluredMetal.png",
+   "bytes": 1066067,
+   "sha256": "c4b6318581728f97e2b23355bad13f8d74e3c71ee1b2aa928760479ee199fd64",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/chairs/chairs.blend",
+    "assets/coatStand/coatStand.blend",
+    "assets/desks/desks.blend",
+    "assets/dustBin/dustBin.blend",
+    "assets/lamps/lamps.blend",
+    "assets/suitcase/suitcase.blend"
+   ],
+   "blend_references": [
+    "//../../textures/_baseTextures/base_bluredMetal.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/_baseTextures/base_brightWood.png",
+   "bytes": 803970,
+   "sha256": "755a84450a9b619eee0a56e883a6d0d0c97a328276b403019320a294d0c95c77",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/desks/desks.blend"
+   ],
+   "blend_references": [
+    "//../../textures/_baseTextures/base_brightWood.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/_baseTextures/base_brownWood.jpg",
+   "bytes": 185023,
+   "sha256": "9d626e8c9a5ebf03dd4ef0f214fdc0cc3e09ebca27af0ac3f8033f7bae28f745",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/desks/desks.blend",
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//../../textures/_baseTextures/base_brownWood.jpg",
+    "//textures/_baseTextures/base_brownWood.jpg"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/_baseTextures/base_darkWood.png",
+   "bytes": 2911284,
+   "sha256": "5c568b302c0401c000a2ec335136d20c010c21a848e07819f9d7252d2ab59a60",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/coatStand/coatStand.blend"
+   ],
+   "blend_references": [
+    "//../../textures/_baseTextures/base_darkWood.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/_baseTextures/base_frostedGlass.png",
+   "bytes": 3168304,
+   "sha256": "cb72e49ef414134e5bb508e3f40c3977441db0ab0fbaaac9963f5c3dfcc5b28e",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/_baseTextures/base_frostedGlass.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/_baseTextures/base_leather.jpg",
+   "bytes": 409646,
+   "sha256": "77b8b4bd2695bc82bc7e2bd2db0c07e20ee76e768d0e0eeb85eba708a493f2d7",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/books/books.blend",
+    "assets/chairs/chairs.blend",
+    "assets/suitcase/suitcase.blend"
+   ],
+   "blend_references": [
+    "//../../textures/_baseTextures/base_leather.jpg"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/_baseTextures/base_paintedPlasterWall.jpg",
+   "bytes": 98381,
+   "sha256": "7566a72e2329672f857deb2bb17beb884e7d96cf7e5f8aed7a0cd90c9989a79c",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/_baseTextures/base_paintedPlasterWall.jpg"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/_baseTextures/base_paper_01.png",
+   "bytes": 802030,
+   "sha256": "2f6d237e0b4ae0c5b1f3e1ba0aac9857cfef74532ad68ce775e9514a8ab199bf",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/officeSupplies/officeSupplies.blend"
+   ],
+   "blend_references": [
+    "//../../textures/_baseTextures/base_paper_01.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/_baseTextures/base_scratch.jpg",
+   "bytes": 179743,
+   "sha256": "94f211724c1c071bf78ba055249586f2ff0e8eeb1e31e3f712ae9d57c33fa559",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "assets/officeSupplies/officeSupplies.blend"
+   ],
+   "blend_references": [
+    "//../../textures/_baseTextures/base_scratch.jpg"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/_baseTextures/base_wallPaint.jpg",
+   "bytes": 674273,
+   "sha256": "b9aa03614d6719cb11268c9a30f13517937bfdcc1bb1f4e1cbed50296f67e12a",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/_baseTextures/base_wallPaint.jpg"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/_baseTextures/base_woodFloor.jpg",
+   "bytes": 630343,
+   "sha256": "2d186a16d09d856173dba6cef33a7436c3695f5b8ed376cff17a0924b1af23f9",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/_baseTextures/base_woodFloor.jpg"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/blackBoard.png",
+   "bytes": 1905029,
+   "sha256": "7d2692f367e69e0ba9c3ba6656a3346f1455c03f1eb1d33a2f7a3f6277f12995",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/blackBoard.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/ceilingAirVent_AO.png",
+   "bytes": 498857,
+   "sha256": "c6575ef427db261b3f760c1f5077eb06a057075bd387cf005aeadbd9fc55d72d",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/ceilingAirVent_AO.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/ceiling_AO.png",
+   "bytes": 616662,
+   "sha256": "7c99cb58df9694bcf8ff4d9a6017c56cb22c738aaeee76af4c3ffb0c683f6dde",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/ceiling_AO.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/childDrawing/childDrawing_01.jpg",
+   "bytes": 188082,
+   "sha256": "46f788f77c57d9411bbcc2ae870a9de0c7d8729f0a212fefca21965cf1855e8d",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/childDrawing/childDrawing_01.jpg"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/childDrawing/childDrawing_02.jpg",
+   "bytes": 464056,
+   "sha256": "1f821f81b7b214b63834d34c689c215ff188d82d973ebae8318114c53ac6d4ab",
+   "role": "unreferenced_payload",
+   "required": false,
+   "note": "present in the scene directory but referenced by no library, image or node path of classroom_eye.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/childDrawing/childDrawing_03.jpg",
+   "bytes": 1222629,
+   "sha256": "a1e5bed6bf433b38c159351f5b2fac6ac683acec6c35cd8d59182b2b7fe6fb47",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/childDrawing/childDrawing_03.jpg"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/childDrawing/childDrawing_04.jpg",
+   "bytes": 182336,
+   "sha256": "b6db605004f071947ec5ebc8fa5218be4623df746aa3227717b26e80d1357a4a",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/childDrawing/childDrawing_04.jpg"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/childDrawing/childDrawing_05.jpg",
+   "bytes": 367387,
+   "sha256": "d08e778363645f75e9dcdea923377f927d3497e2088a650d42adb6011f4e853c",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/childDrawing/childDrawing_05.jpg"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/childDrawing/childDrawing_06.jpg",
+   "bytes": 609608,
+   "sha256": "24feb24f3965a3619597f7117a2cd4804cdccb22b03e24ae8c00240004f81eeb",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/childDrawing/childDrawing_06.jpg"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/childDrawing/childDrawing_07.png",
+   "bytes": 1787728,
+   "sha256": "5a4c6fc9ce09e15745d992b3ee4516d5a08cadc71d510eca047119db5538fd57",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/childDrawing/childDrawing_07.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/childDrawing/childDrawing_08.png",
+   "bytes": 2213883,
+   "sha256": "ab81a314980cc47d4f47dda18fbea277b0fb9e28a55a8167f429c6925b518515",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/childDrawing/childDrawing_08.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/cork.jpg",
+   "bytes": 558834,
+   "sha256": "f0b2dfe55378c25738134c4eb8295510cb60c2a9b60a707c719a2ec3ca999cfe",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/cork.jpg"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/europeMap.png",
+   "bytes": 2414188,
+   "sha256": "191165345c8c25b0667af82369452c45b3f09fbcf9a239b4d834c3ee0755b7c6",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/europeMap.png"
+   ],
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/glass.jpg",
+   "bytes": 5980153,
+   "sha256": "8511cee2c12a60920cae801b6f5bbe4138bd1b9e922c45fd5acd544b9f5d1c9b",
+   "role": "unreferenced_payload",
+   "required": false,
+   "note": "present in the scene directory but referenced by no library, image or node path of classroom_eye.blend",
+   "provenance": "classroom.zip"
+  },
+  {
+   "path": "textures/woodPlanks.jpg",
+   "bytes": 56376,
+   "sha256": "f7e1493cd54d6086b62c4538a53ad9d58ca83648c90dc598aac2a6f7dc6980ad",
+   "role": "linked_texture",
+   "required": true,
+   "linked_from": [
+    "classroom_eye.blend"
+   ],
+   "blend_references": [
+    "//textures/woodPlanks.jpg"
+   ],
+   "provenance": "classroom.zip"
+  }
+ ],
+ "nominal_unused": [
+  {
+   "path": "blendcache_classroom_eye",
+   "role": "nominal_unused",
+   "required": false,
+   "note": "reported by bpy.utils.blend_paths as the default point-cache directory; the only point cache (DustParticules, scene 'dustParticules', not the rendered '_mainScene') is baked in the .blend with use_disk_cache=False, so the directory is never read; tools/greedy_foveal/scene_preflight.py does not require it"
+  }
+ ]
+}
