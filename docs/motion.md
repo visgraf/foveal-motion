@@ -121,7 +121,7 @@ Chat's review (2026-11-12, from `checks.json` and the geometry; nothing re-rende
    point of the plane still is, to first order, an expansion about that point, with the same rate as the expansion
    about the focus of expansion in `ahead` mode. So the board, which fills the fovea and most of the field, flows the
    same in both modes, only centred on a different point (the focus of expansion is 2–6° above the fovea in
-   `target` mode, about 28–56 raster pixels). The modes differ only by the parallax of points off the board's
+   `target` mode, about 29–56 raster pixels). The modes differ only by the parallax of points off the board's
    plane, which scales with that 2–6° offset and is lost in the medians. To separate them, the target must be far
    off the path's line (M2).
 2. **The rise in raster pixels: partly a correction to Chat's own sandbox reading.** Chat wrote that the flow on the
