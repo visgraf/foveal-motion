@@ -200,27 +200,42 @@ improves with it. The finest pixels are worth most where the parallax is, and th
 Measured by Code (issue #3), workstation, RTX 4090, Blender 5.2.1, OPTIX, profile `full`, 64 spp, fov-render `0f6fa7d`.
 Records: [`docs/runs/issue-3/`](runs/issue-3/).
 
-- **`dolly-1`**: M1's run (#1, rendered at `8c1856a`), both modes, reused as it is; `depth` at `780b050` (clean).
-  M2.1 PASS (max relative error 2.8e-8), control fails (median 0.101).
+- **`dolly-1`**: M1's run (#1, rendered at `8c1856a`), both modes, reused as it is; `depth` at `780b050` (clean),
+  again at `5f68240` (clean) with the bracket. M2.1 PASS (max relative error 2.8e-8), control fails (median 0.101).
 - **`dolly-side`**: `paths/classroom_dolly_side.json`, `target` only, at `0de439a` (clean). The target that
   `target_ray` finds is on `worldMap` (M-D8) at (−2.116, 3.540, 1.323): 22.3° left of the heading at k = 0 (7.93 m), 47.3°
   at k = 46 (4.11 m). Preflight: 47 heads pass, the target visible from every head, the hidden point hidden from all;
   the control head fails on clearance. M1.0–M1.3 PASS, every control fails (M1.2 within 5.7 µm, tolerance 7.2–13.9 mm;
-  M1.3 0.905–0.977, control ≤ 0.068). M2.1 PASS (max 2.0e-8), control fails (median 0.101).
-- Times: `dolly-side` 47 looks in 10.8 s (the first 0.98 s, then 0.19–0.21 s a look); `depth` 3.6–6.8 s; the side
-  preflight 46.7 s.
+  M1.3 0.905–0.977, control ≤ 0.068). M2.1 PASS (max 2.0e-8), control fails (median 0.101). `depth` again at
+  `5f68240` (clean) with the bracket.
+- Times: `dolly-side` 47 looks in 10.8 s (the first 0.98 s, then 0.19–0.21 s a look); `depth` 3.6–6.8 s, 4.9–9.0 s with the
+  bracket; the side preflight 46.7 s. With the bracket, every error-based value of both `depth.json` files is identical
+  to the one before it (1,210 values compared; M2.1 too).
 
-| run, stride | fovea (< 2°): median error \| usable | whole field: usable | no range | measured / model |
-|---|---|---|---|---|
-| `ahead`, 0.10 m | — (no range) \| 0.00 | 0.16 | 0.22 | 0.75 |
-| `ahead`, 0.49 m | 0.164 \| 0.31 | 0.69 | 0.00 | 1.00 |
-| `ahead`, 0.99 m | 0.094 \| 0.53 | 0.87 | 0.00 | 1.14 |
-| `target` the board centre (2–6° off the heading), 0.10 m | 0.201 \| 0.26 | 0.18 | 0.06 | 0.78 |
-| `target` the board centre, 0.49 m | 0.046 \| 0.81 | 0.73 | 0.00 | 0.96 |
-| `target` the board centre, 0.99 m | 0.026 \| 0.96 | 0.89 | 0.00 | 1.10 |
-| `target` on `worldMap` (22–47° off), 0.10 m | 0.010 \| 0.996 | 0.57 | 0.02 | 0.53 |
-| `target` on `worldMap`, 0.49 m | 0.008 \| 0.992 | 0.87 | 0.00 | 0.67 |
-| `target` on `worldMap`, 0.99 m | 0.004 \| 0.995 | 0.87 | 0.00 | 0.78 |
+| run, stride | fovea (< 2°): median error \| usable | fovea: bracket median \| usable by bracket | fovea: same pixel | whole field: usable | no range | measured / model |
+|---|---|---|---|---|---|---|
+| `ahead`, 0.10 m | — (no range) \| 0.00 | no range \| 0.00 | 0.921 | 0.16 | 0.22 | 1.07 |
+| `ahead`, 0.49 m | 0.164 \| 0.31 | 0.463 \| 0.00 | 0.053 | 0.69 | 0.00 | 1.48 |
+| `ahead`, 0.99 m | 0.094 \| 0.53 | 0.213 \| 0.00 | 0.013 | 0.87 | 0.00 | 1.75 |
+| `target` the board centre (2–6° off the heading), 0.10 m | 0.201 \| 0.26 | 0.549 \| 0.00 | 0.925 | 0.18 | 0.06 | 1.11 |
+| `target` the board centre, 0.49 m | 0.046 \| 0.81 | 0.112 \| 0.43 | 0.053 | 0.73 | 0.00 | 1.41 |
+| `target` the board centre, 0.99 m | 0.026 \| 0.96 | 0.061 \| 0.84 | 0.013 | 0.89 | 0.00 | 1.68 |
+| `target` on `worldMap` (22–47° off), 0.10 m | 0.010 \| 0.996 | 0.073 \| 0.75 | 1.000 | 0.57 | 0.02 | 0.75 |
+| `target` on `worldMap`, 0.49 m | 0.008 \| 0.992 | 0.015 \| 0.99 | 0.212 | 0.87 | 0.00 | 0.97 |
+| `target` on `worldMap`, 0.99 m | 0.004 \| 0.995 | 0.008 \| 0.995 | 0.050 | 0.87 | 0.00 | 1.17 |
+
+Measured / model is the median of |error| / (range · sqrt(omega_a / 12) / (|T| sin psi)); 0.87 is rounding alone.
+*Note:* with the model before Chat's review, sqrt((omega_a + omega_b) / 12), the same column read, row by row, 0.75,
+1.00, 1.14, 0.78, 0.96, 1.10, 0.53, 0.67, 0.78. The whole field usable **by bracket**: `ahead` 0.000, 0.101, 0.612;
+the board centre 0.001, 0.244, 0.730; `worldMap` 0.167, 0.829, 0.851 (at 0.1, 0.5, 1 m).
+
+**With the bracket** (Code, Classroom). Fixating the map, 22–47° off the heading, the fovea supports 7.3 % from one 10 cm
+step (about three quarters of its samples within 10 %), 1.5 % from 0.5 m and 0.8 % from 1 m. That is close to the calibration room's
+8.9 %, 1.9 % and 1.0 %, so Chat's weaker reading holds here too: about 7–9 % from one step, not 1–3 %. Fixating the
+board centre, 2–6° off the heading, the fovea supports 55 % from 10 cm and 6.1 % from 1 m. Looking ahead it supports
+nothing usable at any stride, even at 1 m, where its errors happen to be under 10 % for half the samples. The new ratio
+rises with the stride on `dolly-1` (1.07–1.11 at 10 cm, 1.41–1.48 at 0.5 m, 1.68–1.75 at 1 m), as the sandbox's 1.0–1.7
+did: beyond 10 cm, the errors outgrow rounding.
 
 **Does the sandbox reading hold?** (Code.) *The fovea gets no range looking ahead*: yes. At 10 cm it gets none, and at
 1 m it is still the worst part of the field (0.094 | 0.53, against 0.83–0.94 usable beyond 5°). *Fixating off the
@@ -234,7 +249,8 @@ range comes out right. At 1 m only 5 % of foveal points are same-pixel, and the 
 flow. Fixating the board centre, 2–6° off the heading, the eye turns too little per step for this: 92.5 % of foveal points
 are same-pixel at 10 cm, with 21 % median error. Looking ahead the eye does not turn, so the rays are parallel and there is
 no range. The model counts pixel rounding only, so it does not describe the same-pixel range; that is why the measured /
-model ratio drops to 0.53 at 10 cm on the side run.
+model ratio drops to 0.53 at 10 cm on the side run (with the model before Chat's review; 0.75 with the
+corrected one).
 
 **Chat's review of #3** (2026-11-12, from the records and the sandbox; nothing re-rendered).
 
