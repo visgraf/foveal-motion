@@ -174,8 +174,8 @@ hidden from all of them. M1's own run (`runs/dolly-1`) is reused for M2 as it is
 `... sandbox --run runs/calib-m2-side --path calib_dolly_side.json --modes target` (the same path fixating the room's
 left wall toward (−3, 3, 1): 31° left of the heading at the start, 48° at the end, computed). A first side target on
 the floor was hidden from heads 12–17 by the card `ring_e40_m225`, which the new preflight caught. M2.1 PASS in both
-runs (max relative error 2.1e-8 and 1.1e-8), control fails (median 0.100). Chat sandbox numbers, at the commit in the
-run records:
+runs (max relative error 2.1e-8 and 1.1e-8), control fails (median 0.100). Chat sandbox numbers, at `4d9ef0a` (clean), fov-render
+`0f6fa7d`, bpy 5.2.1 wheel, CPU:
 
 | run, stride | fovea (< 2°): median error \| usable | whole field: usable | no range |
 |---|---|---|---|
