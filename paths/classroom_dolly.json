@@ -1,0 +1,26 @@
+{
+ "schema": "foveal-motion-path-v1",
+ "name": "classroom_dolly",
+ "scene": "scenes/classroom/classroom_eye.blend",
+ "start_w": [0.897, -3.793, 1.6],
+ "end_w": [0.897, 0.759, 1.6],
+ "n_looks": 47,
+ "facing_w": [0.0, 1.0, 0.0],
+ "target_w": [0.897, 3.259, 1.334],
+ "preflight": {
+  "min_clearance_m": 0.25,
+  "max_hole_fraction": 0.046,
+  "max_backface_fraction_other": 0.001,
+  "backface_allowed": [],
+  "control_head_w": [0.897, 3.159, 1.6]
+ },
+ "source": {
+  "scene": "the Classroom demo (CC0, Christophe Seux) with the playground's EYE, built by scripts/setup_scene.sh; the EYE is the session's head only, every look carries its own",
+  "start_w, end_w": "yarbus-agent REPORT.md, MEASURED placements: back_of_room (0.897, -3.793, 1.600) and near_board (0.897, 0.759, 1.600), 7.06 m and 2.51 m from the board centre; standing height 1.6 m (Luiz, 2026-11-12)",
+  "n_looks": "46 equal steps of 0.0990 m (Chat's choice: about 10 cm)",
+  "facing_w": "+Y, toward the board (its normal points to -Y, yarbus-agent REPORT.md); the same axes as the playground's H0",
+  "target_w": "the board 'blackBoard' centre, yarbus-agent REPORT.md (MEASURED)",
+  "limits": "clearance 0.25 m from fov-render docs/scenes/classroom.json; hole limit 0.046 for this path (Luiz, 2026-11-12, issue #1, decision A, M-D6): the scene's 0.025 (D18, the window panes, measured from the EYE) failed at heads 6-46 with 0.0250-0.0383, every hole ray on the +X wall's window band (Code, workstation, OPTIX, 5a5956f; docs/runs/issue-1/preflight_holes.py); 0.046 is that maximum plus about a fifth, as D18 did",
+  "control_head_w": "0.10 m in front of the board plane at eye height (the board spans z 0.764..1.904): must fail the clearance"
+ }
+}
