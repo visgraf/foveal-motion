@@ -1,0 +1,47 @@
+{
+ "schema": "foveal-motion-path-v1",
+ "name": "calib_dolly_side",
+ "scene": "runs/calib-scene/scenes/calib_room.blend",
+ "start_w": [
+  -0.3,
+  -1.5,
+  1.5
+ ],
+ "end_w": [
+  -0.3,
+  0.6,
+  1.5
+ ],
+ "n_looks": 22,
+ "facing_w": [
+  0.0,
+  1.0,
+  0.0
+ ],
+ "preflight": {
+  "min_clearance_m": 0.25,
+  "max_hole_fraction": 0.001,
+  "max_backface_fraction_other": 0.001,
+  "backface_allowed": [],
+  "control_head_w": [
+   -0.3,
+   4.9,
+   1.5
+  ]
+ },
+ "source": {
+  "scene": "fov-render's calibration room (fov_render/checks/fixtures/make_calib_room.py): a closed room x -3..3, y -2.5..5, z 0..3.2 m, EYE at (0, 0, 1.6), the Siemens-star rings centred on (0, 2, 1.6), 2 m ahead of the EYE",
+  "path": "the same path as calib_dolly.json",
+  "limits": "fov-render docs/scenes/calib_room.json (hole fraction 0.001, clearance 0.25 m)",
+  "control_head_w": "0.10 m from the far wall (y = 5): must fail the clearance",
+  "target_ray": "Chat's choice for the sandbox's off-axis target (M2): the room's left wall (x = -3), toward (-3, 3, 1): about 31 deg left and 6 deg down from the first head, 48 deg left from the last (computed). A first choice on the floor, toward (-1, 2.5, 0), was hidden from heads 12-17 by the card ring_e40_m225 (Chat sandbox preflight)"
+ },
+ "target_ray": {
+  "from_k": 0,
+  "toward_w": [
+   -3.0,
+   3.0,
+   1.0
+  ]
+ }
+}

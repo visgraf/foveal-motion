@@ -17,6 +17,8 @@ Decisions (Luiz, 2026-11-12, in Chat):
 | M-D4 | Where the eye looks during it | both, as two runs of the same path: fixating the board centre (`target`) and straight ahead (`ahead`) |
 | M-D5 | Path and height | yarbus-agent's measured placements, back_of_room → near_board, at standing height 1.6 m |
 | M-D6 | The dolly's hole limit (Luiz, 2026-11-12, issue #1) | 0.046 in `paths/classroom_dolly.json`: the scene's 0.025 failed at heads 6–46 (0.0250–0.0383), every hole on the right-hand window band; the measured maximum plus about a fifth, as D18 |
+| M-D7 | The next step after M1 (Luiz, 2026-11-12, in Chat) | M2: range from the head's motion on the foveated raster, with M1's path run again fixating a target far off the path's line |
+| M-D8 | The side target (Luiz, 2026-11-12, issue #3, option A) | accept what `target_ray` finds, `worldMap` at (−2.116, 3.540, 1.323): a hanging map 3.3 cm proud of the front wall, visible from every head, 22°→47° off the heading; the target sits 6.5 cm above the map's lower edge, so the fovea holds a small depth step. The spec is unchanged |
 
 ## Experiment M1, the dolly
 
@@ -132,3 +134,155 @@ Chat's review (2026-11-12, from `checks.json` and the geometry; nothing re-rende
    (1.07° against 0.96°). On a log-polar raster the pixel grows as (E2 + e), the translational flow as
    sin(e) / range(e); the raster flow is flat only where the range is about constant, and in both rooms the
    periphery sees nearer surfaces (floor, ceiling, desks) than the centre.
+
+## Experiment M2, range from the head's motion
+
+**Question.** The head's step between looks is known (the path) and so are the eye's poses (the records). Two looks
+of a point therefore give its range by triangulation, with the path segment as the baseline, like stereo with the
+eyes one behind the other. The precision is limited by the correspondence: a point is seen at a pixel, not at an exact
+direction, and the foveated raster's pixels grow with eccentricity (E2 + e). The parallax, on the other hand, is zero
+at the focus of expansion and grows with the angle psi from the heading. Where the eye looks decides which pixels get
+which parallax: looking ahead puts the finest pixels where the parallax vanishes; fixating a target off the path's
+line puts them where it is large. M2 measures how much that matters.
+
+**Measurement** ([`motion/depth.py`](../motion/depth.py), `python -m motion.dolly depth --run R`): for every pair of
+looks (k, k + stride), strides 1, 5 and 10 (about 0.1, 0.5 and 1 m), and every surface sample of the later look:
+
+- correspondence by the oracle, as M1.3 (projection into the earlier look; occluded points have no match);
+- **pixel-limited**: triangulate the ray through the later sample's pixel centre with the ray through the centre of the
+  earlier look's pixel that the point projects to; when the two pixels see the same direction (the flow is under
+  about half a pixel) there is no range;
+- error: |range − truth| / truth, truth from the Position pass; a range within 10 % is counted **usable** (a reporting
+  threshold proposed by Chat, not a pass/fail), as a fraction of all the later look's hits at that eccentricity;
+- the precision model to compare with: range · sqrt((omega_a + omega_b)/12) / (|T| sin psi);
+- the depth figure (`visualize`): error and usable fraction by eccentricity, error by psi against the model, and an
+  error map on the raster for the middle pair at stride 5.
+
+**Check** M2.1: with the exact rays through the point, triangulation returns its true range (relative error
+≤ 1e-6 where the rays are ≥ 0.01° apart); control: the earlier eye centre 1 cm along the path, which must give a median
+relative error ≥ 1e-3.
+
+**Off-axis target** (M-D7). [`paths/classroom_dolly_side.json`](../paths/classroom_dolly_side.json): M1's path, limits and
+control head, with the target given as a ray (`target_ray`) from the first head toward the front wall's plane 2.9 m left
+of the board centre, at its height: about 22° left of the heading at the back and 49° at the front (computed for that
+point). The preflight now finds the target (the first opaque surface along the ray; non-opaque objects passed through as
+in fov-render's S5) and requires it **visible from every head**; its control, a point 0.5 m behind the target, must be
+hidden from all of them. M1's own run (`runs/dolly-1`) is reused for M2 as it is: both its modes, no new rendering.
+
+### Chat sandbox, calibration room (CPU, `small` profile)
+
+`python -m motion.dolly sandbox --run runs/calib-m2` (M1's calibration path, both modes) and
+`... sandbox --run runs/calib-m2-side --path calib_dolly_side.json --modes target` (the same path fixating the room's
+left wall toward (−3, 3, 1): 31° left of the heading at the start, 48° at the end, computed). A first side target on
+the floor was hidden from heads 12–17 by the card `ring_e40_m225`, which the new preflight caught. M2.1 PASS in both
+runs (max relative error 2.1e-8 and 1.1e-8), control fails (median 0.100). Chat sandbox numbers, at `4d9ef0a` (clean), fov-render
+`0f6fa7d`, bpy 5.2.1 wheel, CPU:
+
+| run, stride | fovea (< 2°): median error \| usable | whole field: usable | no range |
+|---|---|---|---|
+| `ahead`, 0.1 m | — (no range) \| 0.00 | 0.03 | 0.78 |
+| `ahead`, 0.5 m | 0.391 \| 0.06 | 0.36 | 0.02 |
+| `ahead`, 1.0 m | 0.223 \| 0.21 | 0.60 | 0.00 |
+| `target` near the path line (5–12° off), 0.1 m | 0.168 \| 0.31 | 0.10 | 0.15 |
+| `target` near the path line, 0.5 m | 0.043 \| 0.68 | 0.48 | 0.00 |
+| `target` near the path line, 1.0 m | 0.025 \| 0.80 | 0.67 | 0.00 |
+| `target` off the path line (31–48° off), 0.1 m | 0.030 \| 0.96 | 0.26 | 0.02 |
+| `target` off the path line, 0.5 m | 0.010 \| 0.97 | 0.86 | 0.00 |
+| `target` off the path line, 1.0 m | 0.005 \| 0.97 | 0.90 | 0.00 |
+
+The measured median error is 0.70–1.13 times the model's. A first reading, to be checked on the Classroom: looking
+along the path, the fovea gets no range at all from 10 cm steps and little from 1 m; fixating a point far off the
+path's line, the fovea gives 1–3 % range from a single 10 cm step for nearly every sample it sees, and the whole field
+improves with it. The finest pixels are worth most where the parallax is, and the eye can put them there.
+
+### Classroom (workstation)
+
+Measured by Code (issue #3), workstation, RTX 4090, Blender 5.2.1, OPTIX, profile `full`, 64 spp, fov-render `0f6fa7d`.
+Records: [`docs/runs/issue-3/`](runs/issue-3/).
+
+- **`dolly-1`**: M1's run (#1, rendered at `8c1856a`), both modes, reused as it is; `depth` at `780b050` (clean),
+  again at `5f68240` (clean) with the bracket. M2.1 PASS (max relative error 2.8e-8), control fails (median 0.101).
+- **`dolly-side`**: `paths/classroom_dolly_side.json`, `target` only, at `0de439a` (clean). The target that
+  `target_ray` finds is on `worldMap` (M-D8) at (−2.116, 3.540, 1.323): 22.3° left of the heading at k = 0 (7.93 m), 47.3°
+  at k = 46 (4.11 m). Preflight: 47 heads pass, the target visible from every head, the hidden point hidden from all;
+  the control head fails on clearance. M1.0–M1.3 PASS, every control fails (M1.2 within 5.7 µm, tolerance 7.2–13.9 mm;
+  M1.3 0.905–0.977, control ≤ 0.068). M2.1 PASS (max 2.0e-8), control fails (median 0.101). `depth` again at
+  `5f68240` (clean) with the bracket.
+- Times: `dolly-side` 47 looks in 10.8 s (the first 0.98 s, then 0.19–0.21 s a look); `depth` 3.6–6.8 s, 4.9–9.0 s with the
+  bracket; the side preflight 46.7 s. With the bracket, every error-based value of both `depth.json` files is identical
+  to the one before it (1,210 values compared; M2.1 too).
+
+| run, stride | fovea (< 2°): median error \| usable | fovea: bracket median \| usable by bracket | fovea: same pixel | whole field: usable | no range | measured / model |
+|---|---|---|---|---|---|---|
+| `ahead`, 0.10 m | — (no range) \| 0.00 | no range \| 0.00 | 0.921 | 0.16 | 0.22 | 1.07 |
+| `ahead`, 0.49 m | 0.164 \| 0.31 | 0.463 \| 0.00 | 0.053 | 0.69 | 0.00 | 1.48 |
+| `ahead`, 0.99 m | 0.094 \| 0.53 | 0.213 \| 0.00 | 0.013 | 0.87 | 0.00 | 1.75 |
+| `target` the board centre (2–6° off the heading), 0.10 m | 0.201 \| 0.26 | 0.549 \| 0.00 | 0.925 | 0.18 | 0.06 | 1.11 |
+| `target` the board centre, 0.49 m | 0.046 \| 0.81 | 0.112 \| 0.43 | 0.053 | 0.73 | 0.00 | 1.41 |
+| `target` the board centre, 0.99 m | 0.026 \| 0.96 | 0.061 \| 0.84 | 0.013 | 0.89 | 0.00 | 1.68 |
+| `target` on `worldMap` (22–47° off), 0.10 m | 0.010 \| 0.996 | 0.073 \| 0.75 | 1.000 | 0.57 | 0.02 | 0.75 |
+| `target` on `worldMap`, 0.49 m | 0.008 \| 0.992 | 0.015 \| 0.99 | 0.212 | 0.87 | 0.00 | 0.97 |
+| `target` on `worldMap`, 0.99 m | 0.004 \| 0.995 | 0.008 \| 0.995 | 0.050 | 0.87 | 0.00 | 1.17 |
+
+Measured / model is the median of |error| / (range · sqrt(omega_a / 12) / (|T| sin psi)); 0.87 is rounding alone.
+*Note:* with the model before Chat's review, sqrt((omega_a + omega_b) / 12), the same column read, row by row, 0.75,
+1.00, 1.14, 0.78, 0.96, 1.10, 0.53, 0.67, 0.78. The whole field usable **by bracket**: `ahead` 0.000, 0.101, 0.612;
+the board centre 0.001, 0.244, 0.730; `worldMap` 0.167, 0.829, 0.851 (at 0.1, 0.5, 1 m).
+
+**With the bracket** (Code, Classroom). Fixating the map, 22–47° off the heading, the fovea supports 7.3 % from one 10 cm
+step (about three quarters of its samples within 10 %), 1.5 % from 0.5 m and 0.8 % from 1 m. That is close to the calibration room's
+8.9 %, 1.9 % and 1.0 %, so Chat's weaker reading holds here too: about 7–9 % from one step, not 1–3 %. Fixating the
+board centre, 2–6° off the heading, the fovea supports 55 % from 10 cm and 6.1 % from 1 m. Looking ahead it supports
+nothing usable at any stride, even at 1 m, where its errors happen to be under 10 % for half the samples. The new ratio
+rises with the stride on `dolly-1` (1.07–1.11 at 10 cm, 1.41–1.48 at 0.5 m, 1.68–1.75 at 1 m), as the sandbox's 1.0–1.7
+did: beyond 10 cm, the errors outgrow rounding.
+
+**Does the sandbox reading hold?** (Code.) *The fovea gets no range looking ahead*: yes. At 10 cm it gets none, and at
+1 m it is still the worst part of the field (0.094 | 0.53, against 0.83–0.94 usable beyond 5°). *Fixating off the
+path's line, the fovea gives 1–3 % range from a single 10 cm step*: yes in number (1.0 % at 10 cm, 0.8 % at 0.5 m,
+0.4 % at 1 m, 99 % usable), but at 10 cm this is not parallax the fovea measured.
+[`same_pixel.py`](runs/issue-3/same_pixel.py) ([output](runs/issue-3/same_pixel.txt)) shows that at a 10 cm step **every**
+foveal point lands on the same pixel in both looks (its flow is under half a pixel). Its range is then where the rays
+through that one pixel from the two eye centres cross, which the eye's known rotation between the looks decides: the
+surface of zero flow through the fixated point. Near the target, the map and its wall lie close to that surface, so the
+range comes out right. At 1 m only 5 % of foveal points are same-pixel, and the range of the others (0.40 %) is measured
+flow. Fixating the board centre, 2–6° off the heading, the eye turns too little per step for this: 92.5 % of foveal points
+are same-pixel at 10 cm, with 21 % median error. Looking ahead the eye does not turn, so the rays are parallel and there is
+no range. The model counts pixel rounding only, so it does not describe the same-pixel range; that is why the measured /
+model ratio drops to 0.53 at 10 cm on the side run (with the model before Chat's review; 0.75 with the
+corrected one).
+
+**Chat's review of #3** (2026-11-12, from the records and the sandbox; nothing re-rendered).
+
+1. *Same pixel.* Code is right, and `motion/depth.py`'s docstring was wrong: rays through one pixel are parallel, so
+   give no range, only when the eye does not turn between the looks. A same-pixel match is itself a measurement, though:
+   the flow is under half a pixel. In inverse range it is an interval of the same width, about p / (|T| sin psi),
+   whether or not the eye turns. Looking ahead the interval is centred on 1/range = 0, so it bounds the range only from
+   below: no range. Fixating, it is centred on the zero-flow surface through the fixated point, so it bounds the range
+   on both sides. This is the active-vision argument that fixation makes depth well posed, relative to the fixated
+   point. The fixating estimate is therefore legitimate. What was missing is how much the measurement supports,
+   whatever the error happened to be. On the side run's fovea at 10 cm the error came out under what rounding allows
+   (measured/model 0.53 with the old model, about 0.75 with the corrected one, against 0.87 for rounding alone):
+   the map lies near the zero-flow surface, so its points sit near the pixels' centres. That is the geometry's luck,
+   not the sensor's precision.
+2. *What changed in `motion/depth.py`*. Each range now carries a **bracket**: the relative half-width of the ranges along
+   b's ray that project into the same pixel of a, the precision the measurement supports. `depth.json` reports its
+   median and `usable_bracket_fraction` (bracket ≤ 10 %) next to the error-based ones, and the **same-pixel fraction**.
+   The error-based numbers are unchanged: in the two sandbox runs all 882 compared values (medians, p90s, usable
+   counts and fractions, by eccentricity and by psi) are identical, as is M2.1. The model's sigma is now
+   sqrt(omega_a / 12), Code's hypothesis (b's Position is its pixel's mean, on the centre's ray to first order).
+   Uniform rounding then gives a measured/model ratio of 0.87; the sandbox gives 1.0–1.7, so beyond 10 cm steps the
+   errors are somewhat larger than rounding alone. `depth.json` and `checks.json` now record the code that computed
+   them (`computed_by`), next to the run's commits (`git`) (Code's provenance note).
+3. *The reading, with the bracket* (Chat sandbox, calibration room; fovea < 2°, bracket median | usable by bracket):
+
+   | run | 0.1 m | 0.5 m | 1.0 m |
+   |---|---|---|---|
+   | `ahead` | no range \| 0.00 | 0.594 \| 0.00 | 0.556 \| 0.00 |
+   | `target` near the path line (5–12° off) | 0.421 \| 0.02 | 0.106 \| 0.35 | 0.069 \| 0.80 |
+   | `target` off the path line (31–48° off) | 0.089 \| 0.64 | 0.019 \| 0.97 | 0.010 \| 0.97 |
+
+   The conclusion holds with the honest measure, but it is weaker at 10 cm. Fixating off the path line, the fovea
+   supports about 9 % from one 10 cm step, not 1–3 %, and about 2 % from 0.5 m. Looking ahead, the fovea supports
+   nothing usable at any stride. The Classroom's brackets are for Code to measure (`depth` again on both runs, no
+   rendering).

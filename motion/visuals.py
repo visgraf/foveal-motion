@@ -4,6 +4,8 @@
     <vis>/flow.png            retinal flow per step against eccentricity, both modes; the flow field
                               of the middle step on the raster
     <vis>/dolly.mp4           the two modes side by side, one frame per look (needs ffmpeg)
+    <vis>/depth.png           M2: range from motion, error and usable fraction by eccentricity and by angle
+                              from the heading, against the precision model; one error map per mode
 
 The rasters are the sensor's own log-polar images (the fovea at the centre fills most of the
 disc), linear RGB shown with one exposure per mode (the 99th percentile of its first look) and
@@ -135,6 +137,59 @@ def flow_figure(run: dict, vis: Path) -> Path:
     return p
 
 
+def depth_figure(run: dict, vis: Path) -> Path:
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import LogNorm
+    rd = Path(run["_dir"])
+    dj = json.loads((rd / "depth.json").read_text())
+    ex = np.load(rd / "depth_examples.npz")
+    modes = list(dj["summary"])
+    colors = {"target": "#1f6fb4", "ahead": "#d0602a"}
+    styles = ["-", "--", ":", "-."]
+    fig = plt.figure(figsize=(15, 10))
+    a1, a2, a3 = (fig.add_subplot(2, 3, i) for i in (1, 2, 3))
+    for m in modes:
+        for j, (key, s) in enumerate(dj["summary"][m].items()):
+            lab = f"{m}, {s['stride'] * dj['step_m']:.2f} m"
+            e = [r for r in s["by_eccentricity"] if r["median_rel"] is not None]
+            mid = [0.5 * sum(r["bin"]) for r in e]
+            a1.plot(mid, [r["median_rel"] for r in e], styles[j % 4], marker="o", ms=3, color=colors.get(m), label=lab)
+            a2.plot(mid, [r["usable_fraction"] for r in e], styles[j % 4], marker="o", ms=3, color=colors.get(m), label=lab)
+            if all("usable_bracket_fraction" in r for r in e):
+                a2.plot(mid, [r["usable_bracket_fraction"] for r in e], styles[j % 4], color=colors.get(m), alpha=0.35,
+                        lw=2.5)
+            q = [r for r in s["by_psi"] if r["median_rel"] is not None]
+            mq = [0.5 * sum(r["bin"]) for r in q]
+            a3.plot(mq, [r["median_rel"] for r in q], styles[j % 4], marker="o", ms=3, color=colors.get(m), label=lab)
+            a3.plot(mq, [r["median_pred"] for r in q], styles[j % 4], color="0.6", lw=0.8)
+    a1.set(yscale="log", xlabel="eccentricity in look b (deg)", ylabel="median relative range error",
+           title="range from motion, pixel-limited")
+    a2.set(xlabel="eccentricity in look b (deg)", ylabel=f"usable fraction of all hits (<= {dj['usable_rel']:.0%})",
+           title="usable: by error (thin), by bracket (wide, pale)", ylim=(0, 1))
+    a3.set(xscale="log", yscale="log", xlabel="angle from the heading, psi (deg)", ylabel="median relative range error",
+           title="against the precision model (grey)")
+    for a_ in (a1, a2, a3):
+        a_.grid(alpha=0.3, which="both")
+    a1.legend(fontsize=8)
+    keys = list(ex.files)
+    for i, k in enumerate(keys[:3]):
+        a_ = fig.add_subplot(2, 3, 4 + i)
+        img = np.clip(ex[k], 1e-4, 10)
+        im = a_.imshow(img, norm=LogNorm(1e-3, 1.0), cmap="magma_r", interpolation="nearest")
+        mode, s, kk = k.split("__")
+        a_.set(title=f"{mode}: relative error, looks {kk[1:]} -> +{s[1:]} on look b's raster", xticks=[], yticks=[])
+        fig.colorbar(im, ax=a_, fraction=0.046)
+    fig.suptitle(f"M2 range from the head's motion: {run['path']['name']}, {run['profile']}, {run.get('device')} "
+                 f"(DERIVED from depth.json); M2.1 {'PASS' if dj['check']['ok'] else 'FAIL'}")
+    fig.tight_layout()
+    p = vis / "depth.png"
+    fig.savefig(p, dpi=105)
+    plt.close(fig)
+    return p
+
+
 def video(run: dict, vis: Path, fps: int = 6, cell: int = 506) -> Path | None:
     ff = shutil.which("ffmpeg")
     if ff is None:
@@ -174,6 +229,8 @@ def main(run_dir: Path, vis: Path, fps: int = 6) -> int:
         made.append(flow_figure(run, vis))
     else:
         print("[dolly] no flow.npz: run `checks` first for the flow figure")
+    if (Path(run["_dir"]) / "depth.json").is_file():
+        made.append(depth_figure(run, vis))
     v = video(run, vis, fps)
     made.append(v if v else "no ffmpeg: video skipped")
     for m in made:
