@@ -17,6 +17,7 @@ Decisions (Luiz, 2026-11-12, in Chat):
 | M-D4 | Where the eye looks during it | both, as two runs of the same path: fixating the board centre (`target`) and straight ahead (`ahead`) |
 | M-D5 | Path and height | yarbus-agent's measured placements, back_of_room → near_board, at standing height 1.6 m |
 | M-D6 | The dolly's hole limit (Luiz, 2026-11-12, issue #1) | 0.046 in `paths/classroom_dolly.json`: the scene's 0.025 failed at heads 6–46 (0.0250–0.0383), every hole on the right-hand window band; the measured maximum plus about a fifth, as D18 |
+| M-D7 | The next step after M1 (Luiz, 2026-11-12, in Chat) | M2: range from the head's motion on the foveated raster, with M1's path run again fixating a target far off the path's line |
 
 ## Experiment M1, the dolly
 
@@ -132,3 +133,67 @@ Chat's review (2026-11-12, from `checks.json` and the geometry; nothing re-rende
    (1.07° against 0.96°). On a log-polar raster the pixel grows as (E2 + e), the translational flow as
    sin(e) / range(e); the raster flow is flat only where the range is about constant, and in both rooms the
    periphery sees nearer surfaces (floor, ceiling, desks) than the centre.
+
+## Experiment M2, range from the head's motion
+
+**Question.** The head's step between looks is known (the path) and so are the eye's poses (the records). Two looks
+of a point therefore give its range by triangulation, with the path segment as the baseline, like stereo with the
+eyes one behind the other. The precision is limited by the correspondence: a point is seen at a pixel, not at an exact
+direction, and the foveated raster's pixels grow with eccentricity (E2 + e). The parallax, on the other hand, is zero
+at the focus of expansion and grows with the angle psi from the heading. Where the eye looks decides which pixels get
+which parallax: looking ahead puts the finest pixels where the parallax vanishes; fixating a target off the path's
+line puts them where it is large. M2 measures how much that matters.
+
+**Measurement** ([`motion/depth.py`](../motion/depth.py), `python -m motion.dolly depth --run R`): for every pair of
+looks (k, k + stride), strides 1, 5 and 10 (about 0.1, 0.5 and 1 m), and every surface sample of the later look:
+
+- correspondence by the oracle, as M1.3 (projection into the earlier look; occluded points have no match);
+- **pixel-limited**: triangulate the ray through the later sample's pixel centre with the ray through the centre of the
+  earlier look's pixel that the point projects to; when the two pixels see the same direction (the flow is under
+  about half a pixel) there is no range;
+- error: |range − truth| / truth, truth from the Position pass; a range within 10 % is counted **usable** (a reporting
+  threshold proposed by Chat, not a pass/fail), as a fraction of all the later look's hits at that eccentricity;
+- the precision model to compare with: range · sqrt((omega_a + omega_b)/12) / (|T| sin psi);
+- the depth figure (`visualize`): error and usable fraction by eccentricity, error by psi against the model, and an
+  error map on the raster for the middle pair at stride 5.
+
+**Check** M2.1: with the exact rays through the point, triangulation returns its true range (relative error
+≤ 1e-6 where the rays are ≥ 0.01° apart); control: the earlier eye centre 1 cm along the path, which must give a median
+relative error ≥ 1e-3.
+
+**Off-axis target** (M-D7). [`paths/classroom_dolly_side.json`](../paths/classroom_dolly_side.json): M1's path, limits and
+control head, with the target given as a ray (`target_ray`) from the first head toward the front wall's plane 2.9 m left
+of the board centre, at its height: about 22° left of the heading at the back and 49° at the front (computed for that
+point). The preflight now finds the target (the first opaque surface along the ray; non-opaque objects passed through as
+in fov-render's S5) and requires it **visible from every head**; its control, a point 0.5 m behind the target, must be
+hidden from all of them. M1's own run (`runs/dolly-1`) is reused for M2 as it is: both its modes, no new rendering.
+
+### Chat sandbox, calibration room (CPU, `small` profile)
+
+`python -m motion.dolly sandbox --run runs/calib-m2` (M1's calibration path, both modes) and
+`... sandbox --run runs/calib-m2-side --path calib_dolly_side.json --modes target` (the same path fixating the room's
+left wall toward (−3, 3, 1): 31° left of the heading at the start, 48° at the end, computed). A first side target on
+the floor was hidden from heads 12–17 by the card `ring_e40_m225`, which the new preflight caught. M2.1 PASS in both
+runs (max relative error 2.1e-8 and 1.1e-8), control fails (median 0.100). Chat sandbox numbers, at the commit in the
+run records:
+
+| run, stride | fovea (< 2°): median error \| usable | whole field: usable | no range |
+|---|---|---|---|
+| `ahead`, 0.1 m | — (no range) \| 0.00 | 0.03 | 0.78 |
+| `ahead`, 0.5 m | 0.391 \| 0.06 | 0.36 | 0.02 |
+| `ahead`, 1.0 m | 0.223 \| 0.21 | 0.60 | 0.00 |
+| `target` near the path line (5–12° off), 0.1 m | 0.168 \| 0.31 | 0.10 | 0.15 |
+| `target` near the path line, 0.5 m | 0.043 \| 0.68 | 0.48 | 0.00 |
+| `target` near the path line, 1.0 m | 0.025 \| 0.80 | 0.67 | 0.00 |
+| `target` off the path line (31–48° off), 0.1 m | 0.030 \| 0.96 | 0.26 | 0.02 |
+| `target` off the path line, 0.5 m | 0.010 \| 0.97 | 0.86 | 0.00 |
+| `target` off the path line, 1.0 m | 0.005 \| 0.97 | 0.90 | 0.00 |
+
+The measured median error is 0.70–1.13 times the model's. A first reading, to be checked on the Classroom: looking
+along the path, the fovea gets no range at all from 10 cm steps and little from 1 m; fixating a point far off the
+path's line, the fovea gives 1–3 % range from a single 10 cm step for nearly every sample it sees, and the whole field
+improves with it. The finest pixels are worth most where the parallax is, and the eye can put them there.
+
+### Classroom (workstation)
+
+To be measured by Code (issue #3).

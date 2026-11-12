@@ -8,6 +8,7 @@ per look (fov-render #20, PLAN D19). One Blender session renders both gaze modes
     python -m motion.dolly run       --path paths/classroom_dolly.json --run runs/dolly-1 --device OPTIX
     python -m motion.dolly checks    --run runs/dolly-1
     python -m motion.dolly visualize --run runs/dolly-1 --vis visuals/dolly-1
+    python -m motion.dolly depth     --run runs/dolly-1 [--strides 1 5 10]   M2: range from the head's motion
     python -m motion.dolly sandbox   --run runs/calib-dolly            the calibration room on CPU, end to end
 
 `preflight` writes <run>/preflight.json, `run` refuses a run folder that already holds a run.json,
@@ -123,9 +124,15 @@ def run(a) -> int:
         print(f"{PREFIX} refused: the preflight failed (heads {pre_ok['summary']['failing_heads']}, control fails "
               f"{pre_ok['control_fails']}); see {pre}", file=sys.stderr)
         return 2
+    try:
+        spec = paths.resolved(spec, pre_ok)
+    except paths.PathError as e:
+        print(f"{PREFIX} refused: {e}", file=sys.stderr)
+        return 2
     heads = paths.heads(spec)
     cfg = RenderConfig(profile=a.profile, device=a.device)
     record = {"schema": "foveal-motion-run-v1", "experiment": "M1 dolly", "path": spec,
+              "target_source": "target_ray, found by the preflight" if "target_ray" in spec else "target_w",
               "path_file": str(Path(a.path)), "blend": str(blend), "blend_sha256": _sha256(blend),
               "profile": a.profile, "spp": a.spp, "device_requested": a.device, "modes": modes,
               "sensor": {"type": "foveated", "E2_deg": a.e2, "e_max_deg": a.emax}, "eye": "C",
@@ -188,6 +195,37 @@ def checks(a) -> int:
     return 0 if allok else 1
 
 
+# ----------------------------------------------------------------------------- depth (M2)
+
+def depth_cmd(a) -> int:
+    from . import depth
+    r = analysis.load_run(a.run)
+    rd = Path(a.run)
+    summary, examples, check = depth.run_depth(r, tuple(a.strides))
+    np.savez_compressed(rd / "depth_examples.npz", **examples)
+    step = paths.step_m(r["path"])
+    out = {"schema": "foveal-motion-depth-v1", "run": str(rd), "git": r["git"], "device": r.get("device"),
+           "step_m": step, "usable_rel": depth.USABLE_REL, "strides": list(a.strides), "check": check,
+           "target_w": r["path"]["target_w"], "summary": summary}
+    (rd / "depth.json").write_text(json.dumps(out, indent=1))
+    good = check["ok"] and check["control_fails"]
+    print(f"{PREFIX} {check['id']} {'PASS' if check['ok'] else 'FAIL'}  control "
+          f"{'fails' if check['control_fails'] else 'DOES NOT FAIL'}  {check['what']}: {json.dumps(check['detail'])}")
+    print(f"{PREFIX} range from motion, pixel-limited: median relative error | usable (<= {depth.USABLE_REL:.0%}) "
+          f"by eccentricity")
+    for mode, d in summary.items():
+        for key, s in d.items():
+            def g(v):
+                return "-" if v is None else f"{v:.3f}"
+            cells = [f"{x['bin'][0]:g}-{x['bin'][1]:g}: {g(x['median_rel'])}|{g(x['usable_fraction'])}"
+                     for x in s["by_eccentricity"]]
+            print(f"        {mode:6s} {s['stride'] * step:4.2f} m  " + "  ".join(cells)
+                  + f"   fovea<2deg {g(s['fovea_2deg']['median_rel'])}|{g(s['fovea_2deg']['usable_fraction'])}"
+                  + f"   no range {s['no_range_fraction']:.2f}   measured/model {g(s['median_measured_over_pred'])}")
+    print(f"{PREFIX} {'PASS' if good else 'NOT PASS'} -> {rd / 'depth.json'}")
+    return 0 if good else 1
+
+
 # ----------------------------------------------------------------------------- visualize
 
 def visualize(a) -> int:
@@ -220,13 +258,14 @@ def sandbox(a) -> int:
     """The calibration room (fov-render's fixture) on CPU, small profile: preflight, run, checks, visualize."""
     from fov_render.checks.step1 import calib_room
     rd = Path(a.run)
-    blend = calib_room({"work": str(rd / "scene"), "device": "CPU"})
-    common = dict(path=str(REPO / "paths" / "calib_dolly.json"), run=str(rd), blend=blend, launcher=a.launcher)
+    blend = calib_room({"work": str(REPO / "runs" / "calib-scene"), "device": "CPU"})
+    common = dict(path=str(REPO / "paths" / a.path), run=str(rd), blend=blend, launcher=a.launcher)
     ns = argparse.Namespace
     steps = [("preflight", preflight, ns(device="CPU", width=360, spp=2, **common)),
-             ("run", run, ns(device="CPU", profile="small", spp=a.spp, modes=list(paths.MODES), e2=2.0, emax=45.0,
+             ("run", run, ns(device="CPU", profile="small", spp=a.spp, modes=a.modes, e2=2.0, emax=45.0,
                              no_preflight=False, **common)),
              ("checks", checks, ns(run=str(rd))),
+             ("depth", depth_cmd, ns(run=str(rd), strides=[1, 5, 10])),
              ("visualize", visualize, ns(run=str(rd), vis=str(rd / "visuals"), fps=6))]
     rc = 0
     for name, fn, args in steps:
@@ -263,14 +302,19 @@ def main(argv=None) -> int:
     p.add_argument("--run", required=True)
     p.add_argument("--vis", required=True)
     p.add_argument("--fps", type=int, default=6)
+    p = sub.add_parser("depth")
+    p.add_argument("--run", required=True)
+    p.add_argument("--strides", type=int, nargs="+", default=[1, 5, 10])
     sub.add_parser("selftest")
     p = sub.add_parser("sandbox")
     p.add_argument("--run", required=True)
     p.add_argument("--spp", type=int, default=16)
     p.add_argument("--launcher", default="auto")
+    p.add_argument("--path", default="calib_dolly.json", help="a spec in paths/")
+    p.add_argument("--modes", nargs="+", default=list(paths.MODES))
     a = ap.parse_args(argv)
     return {"preflight": preflight, "run": run, "checks": checks, "visualize": visualize, "selftest": selftest,
-            "sandbox": sandbox}[a.cmd](a)
+            "sandbox": sandbox, "depth": depth_cmd}[a.cmd](a)
 
 
 if __name__ == "__main__":

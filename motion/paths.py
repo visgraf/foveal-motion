@@ -6,10 +6,14 @@ A path spec is a JSON file (`paths/*.json`, schema foveal-motion-path-v1):
     start_w, end_w   the head origin's first and last positions, world metres
     n_looks          looks along the straight segment, both ends included (n_looks - 1 equal steps)
     facing_w         the head's forward direction, horizontal; up is world +Z
-    target_w         the world point the "target" gaze fixates
+    target_w         the world point the "target" gaze fixates; or, instead,
+    target_ray       {"from_k": K, "toward_w": [x, y, z]}: the target is the first opaque surface the ray from
+                     head K toward that point meets, found by the preflight (Blender ray cast) and recorded
+                     in preflight.json; `run` takes it from there (resolved())
     preflight        the scene gate's limits along the path: min_clearance_m, max_hole_fraction,
                      max_backface_fraction_other, backface_allowed, and control_head_w, a head that
-                     must FAIL the preflight (rule 2)
+                     must FAIL the preflight (rule 2). The preflight also requires the target visible
+                     from every head (nothing opaque between them, TARGET_TOL_M)
     source, notes    where every number comes from
 
 Gaze modes (the same path is run once per mode):
@@ -30,7 +34,8 @@ from fov_render import Gaze, HeadPose
 
 SCHEMA = "foveal-motion-path-v1"
 MODES = ("target", "ahead")
-REQUIRED = ("name", "scene", "start_w", "end_w", "n_looks", "facing_w", "target_w", "preflight", "source")
+REQUIRED = ("name", "scene", "start_w", "end_w", "n_looks", "facing_w", "preflight", "source")
+TARGET_TOL_M = 0.01           # a target is visible when the first opaque hit toward it is within 1 cm of it
 PREFLIGHT = ("min_clearance_m", "max_hole_fraction", "max_backface_fraction_other", "backface_allowed",
              "control_head_w")
 
@@ -55,6 +60,15 @@ def validate(spec: dict) -> list[str]:
     for k in ("start_w", "end_w", "facing_w", "target_w"):
         if k in spec and not _vec3(spec[k]):
             out.append(f"{k}: three finite numbers")
+    if ("target_w" in spec) == ("target_ray" in spec):
+        out.append("exactly one of target_w and target_ray")
+    if "target_ray" in spec:
+        tr = spec["target_ray"]
+        if not (isinstance(tr, dict) and _vec3(tr.get("toward_w"))):
+            out.append("target_ray.toward_w: three finite numbers")
+        elif not (isinstance(tr.get("from_k"), int) and isinstance(spec.get("n_looks"), int)
+                  and 0 <= tr["from_k"] < spec["n_looks"]):
+            out.append("target_ray.from_k: a head index of the path")
     n = spec.get("n_looks")
     if "n_looks" in spec and not (isinstance(n, int) and n >= 2):
         out.append("n_looks: an integer >= 2")
@@ -111,6 +125,17 @@ def step_m(spec: dict) -> float:
     return float(np.linalg.norm(b - a) / (int(spec["n_looks"]) - 1))
 
 
+def resolved(spec: dict, preflight: dict | None) -> dict:
+    """The spec with target_w: its own, or the one the preflight found along target_ray."""
+    if "target_w" in spec:
+        return spec
+    if preflight is None or preflight.get("target", {}).get("target_w") is None:
+        raise PathError(["target_ray: no target in preflight.json (run the preflight first; it may have missed)"])
+    out = dict(spec)
+    out["target_w"] = list(preflight["target"]["target_w"])
+    return out
+
+
 def gaze(spec: dict, mode: str) -> Gaze:
     if mode == "target":
         return Gaze.verged_point(spec["target_w"])
@@ -142,5 +167,14 @@ def selftest() -> list[tuple[str, bool]]:
                                                                            if k != "control_head_w"})))),
         ("refused: no motion", bool(validate(dict(spec, end_w=spec["start_w"])))),
         ("modes differ", gaze(spec, "target") != gaze(spec, "ahead")),
+        ("refused: both target_w and target_ray", bool(validate(dict(spec, target_ray={"from_k": 0,
+                                                                                       "toward_w": [0, 0, 0]})))),
+        ("refused: target_ray from a head not on the path", bool(validate(
+            {k: v for k, v in dict(spec, target_ray={"from_k": 47, "toward_w": [0, 0, 0]}).items() if k != "target_w"}))),
+        ("accepted: target_ray alone", validate({k: v for k, v in dict(spec, target_ray={"from_k": 0, "toward_w": [
+            -2.0, 3.259, 1.334]}).items() if k != "target_w"}) == []),
+        ("resolved() takes the preflight's target", resolved({k: v for k, v in dict(spec, target_ray={
+            "from_k": 0, "toward_w": [0, 0, 0]}).items() if k != "target_w"}, {"target": {"target_w": [1, 2, 3]}})[
+            "target_w"] == [1, 2, 3]),
     ]
     return res

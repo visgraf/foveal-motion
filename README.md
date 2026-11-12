@@ -32,6 +32,10 @@ design and results: [`docs/motion.md`](docs/motion.md).
 
 `preflight` runs fov-render's scene sanity (holes, back-faces, nearest surface) from **every head of the path**, which
 fov-render's own scene gate does only from the session's head, plus a control head against the board that must fail.
+**Experiment M2** (`python -m motion.dolly depth --run R`) measures the range the head's own motion gives, on the
+foveated raster, for M1's run and for the same path fixating a target off the path's line
+([`paths/classroom_dolly_side.json`](paths/classroom_dolly_side.json)).
+
 `checks` (M1.0–M1.3, each with a control that must fail) and the translational flow are described in
 [`docs/motion.md`](docs/motion.md). Blender is found as fov-render finds it (`$FOVRENDER_BLENDER`, `blender` on PATH, or the
 `bpy` wheel).
@@ -42,7 +46,8 @@ fov-render's own scene gate does only from the session's head, plus a control he
 | [`motion/dolly.py`](motion/dolly.py) | the command line: preflight, run (one fov-render `Session`), checks, visualize, sandbox |
 | [`motion/bl_preflight.py`](motion/bl_preflight.py) | Blender side: the scene sanity from every head of the path |
 | [`motion/analysis.py`](motion/analysis.py) | the checks and the flow, from the run's files |
-| [`motion/visuals.py`](motion/visuals.py) | contact sheet, flow figure, side-by-side video |
+| [`motion/visuals.py`](motion/visuals.py) | contact sheet, flow figure, side-by-side video, depth figure |
+| [`motion/depth.py`](motion/depth.py) | M2: range from the head's motion, pixel-limited, and check M2.1 |
 
 How we work on it (Luiz, Chat, Code, GitHub Issues): [`CLAUDE.md`](CLAUDE.md).
 

@@ -1,7 +1,7 @@
 {
  "schema": "foveal-motion-path-v1",
  "name": "calib_dolly",
- "scene": "runs/calib-dolly/scene/scenes/calib_room.blend",
+ "scene": "runs/calib-scene/scenes/calib_room.blend",
  "start_w": [-0.3, -1.5, 1.5],
  "end_w": [-0.3, 0.6, 1.5],
  "n_looks": 22,
