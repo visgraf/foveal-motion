@@ -17,7 +17,8 @@ ahead** (`ahead`). Path, limits and where every number comes from: [`paths/class
 design and results: [`docs/motion.md`](docs/motion.md).
 
     git clone --recurse-submodules https://github.com/visgraf/foveal-motion.git && cd foveal-motion
-    python3 -m venv .venv && .venv/bin/pip install -r requirements.txt     # numpy, Pillow, matplotlib, fov-render
+    python3.12 -m venv .venv && .venv/bin/pip install -r requirements.txt  # Python 3.11+ (fov-render); numpy, Pillow,
+                                                                           # matplotlib, fov-render
     scripts/setup_scene.sh                                                 # the Classroom, as in the playground
 
     .venv/bin/python -m motion.dolly selftest                                       # numpy only, seconds

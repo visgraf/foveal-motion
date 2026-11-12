@@ -1,6 +1,6 @@
 # Runs and figures are regenerable: the command is the artifact.
-runs/
-visuals/
+/runs/
+/visuals/
 .venv/
 __pycache__/
 *.pyc

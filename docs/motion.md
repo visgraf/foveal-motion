@@ -112,3 +112,23 @@ only 2.2°–6.1° below the path's forward direction, and the fovea sees the bo
 modes. The calibration room's target, off the path line, separated them. Unlike the calibration room, the flow in
 raster pixels is not flat: it rises from 0.2 px near the fovea to 1.2 px at 30–45°, where the periphery sees desks,
 floor and ceiling close by.
+
+Chat's review (2026-11-12, from `checks.json` and the geometry; nothing re-rendered):
+
+1. **Same flow in both modes: confirmed, and expected for this path.** In `target` mode the eye pitches down to keep
+   the board centre, from atan(0.266 / 7.052) = 2.2° to atan(0.266 / 2.5) = 6.1°, so it turns 0.03° per step at the
+   back and 0.24° at the end (computed). For a plane facing the head, a translation plus the rotation that holds a
+   point of the plane still is, to first order, an expansion about that point, with the same rate as the expansion
+   about the focus of expansion in `ahead` mode. So the board, which fills the fovea and most of the field, flows the
+   same in both modes, only centred on a different point (the focus of expansion is 2–6° above the fovea in
+   `target` mode, about 28–56 raster pixels). The modes differ only by the parallax of points off the board's
+   plane, which scales with that 2–6° offset and is lost in the medians. To separate them, the target must be far
+   off the path's line (M2).
+2. **The rise in raster pixels: partly a correction to Chat's own sandbox reading.** Chat wrote that the flow on the
+   raster is "nearly flat" in the calibration room. That holds for `target` there (0.61 → 0.55 px from 5–10° to
+   30–45°), not for `ahead` (0.30 → 0.52 px, ×1.7), which rises about as the Classroom does (0.64 → 1.16 px, ×1.8).
+   The Classroom's pixel values are about twice the sandbox's mainly because the `full` raster has twice the
+   `small` raster's resolution (s0 0.05° against 0.1°): in degrees the two scenes agree within about 10 % at 30–45°
+   (1.07° against 0.96°). On a log-polar raster the pixel grows as (E2 + e), the translational flow as
+   sin(e) / range(e); the raster flow is flat only where the range is about constant, and in both rooms the
+   periphery sees nearer surfaces (floor, ceiling, desks) than the centre.
