@@ -85,4 +85,30 @@ fixated point.
 
 ### Classroom (workstation)
 
-To be measured by Code (issue #1).
+Measured by Code (issue #1): `python -m motion.dolly preflight | run | checks | visualize --path
+paths/classroom_dolly.json --run runs/dolly-1 --device OPTIX` at `8c1856a` (clean), fov-render `0f6fa7d` (clean),
+Blender 5.2.1, OPTIX, RTX 4090, profile `full` (253 × 253 raster), 64 spp. Records: [`docs/runs/issue-1/`](runs/issue-1/)
+(`preflight.json`, `run.json`, `checks.json`, the figures).
+
+- Preflight: all 47 heads pass with M-D6's hole limit 0.046 (holes 0.0205–0.0383, every hole on the right-hand window
+  band; nearest surface ≥ 0.793 m; back-faces on closed meshes ≤ 5.8e-6); the control head fails on clearance
+  (0.100 m). Under the scene's 0.025 heads 6–46 had failed ([`preflight-limit-0.025.json`](runs/issue-1/preflight-limit-0.025.json)).
+- M1.0–M1.3 all PASS, every control fails. M1.0: p99.9 ≤ 0.00082° (limit 1.17°). M1.1 errors are exactly 0. M1.2:
+  `target` within 7.7 µm of the board centre (tolerance 4.4–12.4 mm); `ahead` never on it (its fovea is 0.266 m
+  higher, the eye height above the board centre). M1.3: agreeing fraction 0.900–0.989 (`target`), 0.904–0.990
+  (`ahead`), lowest at the first pair and rising toward the board; with the control at most 0.040 and 0.038.
+- 94 looks in 19.5 s (session start 0.5 s; the first look 0.82 s, then 0.18–0.21 s a look, of which 0.06 s render);
+  the preflight's 48 panoramas (720 px, 4 spp) in 46–56 s.
+
+Median flow per 9.9 cm step, degrees | raster pixels, by eccentricity (Code, workstation, Classroom):
+
+| eccentricity (deg) | 0–1 | 1–2 | 2–5 | 5–10 | 10–20 | 20–30 | 30–45 |
+|---|---|---|---|---|---|---|---|
+| `target` | 0.013 \| 0.19 | 0.031 \| 0.35 | 0.071 \| 0.51 | 0.150 \| 0.64 | 0.311 \| 0.74 | 0.600 \| 0.93 | 1.062 \| 1.18 |
+| `ahead` | 0.013 \| 0.20 | 0.031 \| 0.35 | 0.072 \| 0.52 | 0.151 \| 0.64 | 0.312 \| 0.75 | 0.606 \| 0.94 | 1.066 \| 1.16 |
+
+A first reading (Code, to be checked): the two modes give the same flow to within 0.01°. Here the board centre is
+only 2.2°–6.1° below the path's forward direction, and the fovea sees the board, a plane facing the head, in both
+modes. The calibration room's target, off the path line, separated them. Unlike the calibration room, the flow in
+raster pixels is not flat: it rises from 0.2 px near the fovea to 1.2 px at 30–45°, where the periphery sees desks,
+floor and ceiling close by.
