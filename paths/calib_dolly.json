@@ -1,0 +1,24 @@
+{
+ "schema": "foveal-motion-path-v1",
+ "name": "calib_dolly",
+ "scene": "runs/calib-dolly/scene/scenes/calib_room.blend",
+ "start_w": [-0.3, -1.5, 1.5],
+ "end_w": [-0.3, 0.6, 1.5],
+ "n_looks": 22,
+ "facing_w": [0.0, 1.0, 0.0],
+ "target_w": [0.0, 2.0, 1.6],
+ "preflight": {
+  "min_clearance_m": 0.25,
+  "max_hole_fraction": 0.001,
+  "max_backface_fraction_other": 0.001,
+  "backface_allowed": [],
+  "control_head_w": [-0.3, 4.9, 1.5]
+ },
+ "source": {
+  "scene": "fov-render's calibration room (fov_render/checks/fixtures/make_calib_room.py): a closed room x -3..3, y -2.5..5, z 0..3.2 m, EYE at (0, 0, 1.6), the Siemens-star rings centred on (0, 2, 1.6), 2 m ahead of the EYE",
+  "path": "Chat's choice for the sandbox: 2.1 m along +Y in 10 cm steps, 0.3 m left of and 0.1 m below the EYE's line so 'ahead' does not land on the target; ends 1.4 m before the ring plane. The depth ladder is on the right (x > 0), the wire harp at x < -1.2",
+  "target_w": "the centre card of the ring at eccentricity 0, at the EYE's primary gaze 2 m ahead",
+  "limits": "fov-render docs/scenes/calib_room.json (hole fraction 0.001, clearance 0.25 m)",
+  "control_head_w": "0.10 m from the far wall (y = 5): must fail the clearance"
+ }
+}

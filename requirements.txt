@@ -10,3 +10,9 @@
 
 numpy==2.2.6
 pillow==12.3.0
+
+# foveal-motion (motion/): the flow figure, and fov-render from the submodule
+# (git clone --recurse-submodules, or git submodule update --init). fov-render needs Python 3.11+;
+# its bpy wheel (pip install -e "external/fov-render[bpy]") needs Python 3.13 and renders on CPU.
+matplotlib==3.10.9
+-e external/fov-render

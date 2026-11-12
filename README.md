@@ -1,4 +1,53 @@
-# Foveal Playground
+# foveal-motion
+
+Active foveal vision **under head motion**: an independent experimental repository, forked from
+[visgraf/foveal-playground](https://github.com/visgraf/foveal-playground) (its history is kept here) and rendering through
+[visgraf/fov-render](https://github.com/visgraf/fov-render) (a submodule, `external/fov-render`), whose head may move between
+looks (fov-render #20, PLAN D19–D20).
+
+The first setting is **monocular**: the cyclopean eye `C` of fov-render's rig (at the head origin), the **Foveated**
+sensor (log-polar, E2 = 2°, e_max = 45°), and a head that moves. The playground's binocular explorer below is kept
+unchanged as the reference.
+
+## Experiment M1, the dolly
+
+The head walks straight from the back of the Classroom to the board, level, at standing height (1.6 m), 46 steps of
+about 10 cm, one foveated look per step, twice: the eye **fixating the board centre** (`target`) and **looking straight
+ahead** (`ahead`). Path, limits and where every number comes from: [`paths/classroom_dolly.json`](paths/classroom_dolly.json);
+design and results: [`docs/motion.md`](docs/motion.md).
+
+    git clone --recurse-submodules https://github.com/visgraf/foveal-motion.git && cd foveal-motion
+    python3 -m venv .venv && .venv/bin/pip install -r requirements.txt     # numpy, Pillow, matplotlib, fov-render
+    scripts/setup_scene.sh                                                 # the Classroom, as in the playground
+
+    .venv/bin/python -m motion.dolly selftest                                       # numpy only, seconds
+    .venv/bin/python -m motion.dolly preflight --path paths/classroom_dolly.json --run runs/dolly-1 --device OPTIX
+    .venv/bin/python -m motion.dolly run       --path paths/classroom_dolly.json --run runs/dolly-1 --device OPTIX
+    .venv/bin/python -m motion.dolly checks    --run runs/dolly-1
+    .venv/bin/python -m motion.dolly visualize --run runs/dolly-1 --vis visuals/dolly-1
+
+    .venv/bin/python -m motion.dolly sandbox --run runs/calib-dolly    # no GPU, no Classroom: fov-render's calibration
+                                                                       # room on CPU with the bpy wheel (Python 3.13), < 1 min
+
+`preflight` runs fov-render's scene sanity (holes, back-faces, nearest surface) from **every head of the path**, which
+fov-render's own scene gate does only from the session's head, plus a control head against the board that must fail.
+`checks` (M1.0–M1.3, each with a control that must fail) and the translational flow are described in
+[`docs/motion.md`](docs/motion.md). Blender is found as fov-render finds it (`$FOVRENDER_BLENDER`, `blender` on PATH, or the
+`bpy` wheel).
+
+| file | role |
+|---|---|
+| [`motion/paths.py`](motion/paths.py) | the path spec, its heads and the two gaze modes |
+| [`motion/dolly.py`](motion/dolly.py) | the command line: preflight, run (one fov-render `Session`), checks, visualize, sandbox |
+| [`motion/bl_preflight.py`](motion/bl_preflight.py) | Blender side: the scene sanity from every head of the path |
+| [`motion/analysis.py`](motion/analysis.py) | the checks and the flow, from the run's files |
+| [`motion/visuals.py`](motion/visuals.py) | contact sheet, flow figure, side-by-side video |
+
+How we work on it (Luiz, Chat, Code, GitHub Issues): [`CLAUDE.md`](CLAUDE.md).
+
+---
+
+# The playground baseline (unchanged from foveal-playground)
 
 A small playground for **active foveal 3-D vision**. A binocular head sits in a static synthetic scene (the Blender
 Classroom). Its eyes explore the scene one fixation at a time, reconstruct what the fovea sees, remember it globally
