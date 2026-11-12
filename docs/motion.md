@@ -197,4 +197,41 @@ improves with it. The finest pixels are worth most where the parallax is, and th
 
 ### Classroom (workstation)
 
-To be measured by Code (issue #3).
+Measured by Code (issue #3), workstation, RTX 4090, Blender 5.2.1, OPTIX, profile `full`, 64 spp, fov-render `0f6fa7d`.
+Records: [`docs/runs/issue-3/`](runs/issue-3/).
+
+- **`dolly-1`**: M1's run (#1, rendered at `8c1856a`), both modes, reused as it is; `depth` at `780b050` (clean).
+  M2.1 PASS (max relative error 2.8e-8), control fails (median 0.101).
+- **`dolly-side`**: `paths/classroom_dolly_side.json`, `target` only, at `0de439a` (clean). The target that
+  `target_ray` finds is on `worldMap` (M-D8) at (−2.116, 3.540, 1.323): 22.3° left of the heading at k = 0 (7.93 m), 47.3°
+  at k = 46 (4.11 m). Preflight: 47 heads pass, the target visible from every head, the hidden point hidden from all;
+  the control head fails on clearance. M1.0–M1.3 PASS, every control fails (M1.2 within 5.7 µm, tolerance 7.2–13.9 mm;
+  M1.3 0.905–0.977, control ≤ 0.068). M2.1 PASS (max 2.0e-8), control fails (median 0.101).
+- Times: `dolly-side` 47 looks in 10.8 s (the first 0.98 s, then 0.19–0.21 s a look); `depth` 3.6–6.8 s; the side
+  preflight 46.7 s.
+
+| run, stride | fovea (< 2°): median error \| usable | whole field: usable | no range | measured / model |
+|---|---|---|---|---|
+| `ahead`, 0.10 m | — (no range) \| 0.00 | 0.16 | 0.22 | 0.75 |
+| `ahead`, 0.49 m | 0.164 \| 0.31 | 0.69 | 0.00 | 1.00 |
+| `ahead`, 0.99 m | 0.094 \| 0.53 | 0.87 | 0.00 | 1.14 |
+| `target` the board centre (2–6° off the heading), 0.10 m | 0.201 \| 0.26 | 0.18 | 0.06 | 0.78 |
+| `target` the board centre, 0.49 m | 0.046 \| 0.81 | 0.73 | 0.00 | 0.96 |
+| `target` the board centre, 0.99 m | 0.026 \| 0.96 | 0.89 | 0.00 | 1.10 |
+| `target` on `worldMap` (22–47° off), 0.10 m | 0.010 \| 0.996 | 0.57 | 0.02 | 0.53 |
+| `target` on `worldMap`, 0.49 m | 0.008 \| 0.992 | 0.87 | 0.00 | 0.67 |
+| `target` on `worldMap`, 0.99 m | 0.004 \| 0.995 | 0.87 | 0.00 | 0.78 |
+
+**Does the sandbox reading hold?** (Code.) *The fovea gets no range looking ahead*: yes. At 10 cm it gets none, and at
+1 m it is still the worst part of the field (0.094 | 0.53, against 0.83–0.94 usable beyond 5°). *Fixating off the
+path's line, the fovea gives 1–3 % range from a single 10 cm step*: yes in number (1.0 % at 10 cm, 0.8 % at 0.5 m,
+0.4 % at 1 m, 99 % usable), but at 10 cm this is not parallax the fovea measured.
+[`same_pixel.py`](runs/issue-3/same_pixel.py) ([output](runs/issue-3/same_pixel.txt)) shows that at a 10 cm step **every**
+foveal point lands on the same pixel in both looks (its flow is under half a pixel). Its range is then where the rays
+through that one pixel from the two eye centres cross, which the eye's known rotation between the looks decides: the
+surface of zero flow through the fixated point. Near the target, the map and its wall lie close to that surface, so the
+range comes out right. At 1 m only 5 % of foveal points are same-pixel, and the range of the others (0.40 %) is measured
+flow. Fixating the board centre, 2–6° off the heading, the eye turns too little per step for this: 92.5 % of foveal points
+are same-pixel at 10 cm, with 21 % median error. Looking ahead the eye does not turn, so the rays are parallel and there is
+no range. The model counts pixel rounding only, so it does not describe the same-pixel range; that is why the measured /
+model ratio drops to 0.53 at 10 cm on the side run.

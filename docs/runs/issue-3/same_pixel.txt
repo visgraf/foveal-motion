@@ -1,0 +1,9 @@
+runs/dolly-side target stride  1: fovea 110786 samples, same pixel in a and b 1.000; median error same-pixel 0.0104, other -; usable same-pixel 1.000, other - | whole field same pixel 0.393
+runs/dolly-side target stride  5: fovea 100719 samples, same pixel in a and b 0.212; median error same-pixel 0.0062, other 0.0082; usable same-pixel 1.000, other 1.000 | whole field same pixel 0.013
+runs/dolly-side target stride 10: fovea 88997 samples, same pixel in a and b 0.050; median error same-pixel 0.0031, other 0.0040; usable same-pixel 1.000, other 1.000 | whole field same pixel 0.003
+runs/dolly-1 target stride  1: fovea 111182 samples, same pixel in a and b 0.925; median error same-pixel 0.2087, other 0.1398; usable same-pixel 0.253, other 0.297 | whole field same pixel 0.225
+runs/dolly-1 ahead  stride  1: fovea 111182 samples, same pixel in a and b 0.921; median error same-pixel inf, other 0.4124; usable same-pixel 0.000, other 0.000 | whole field same pixel 0.222
+runs/dolly-1 target stride  5: fovea 101514 samples, same pixel in a and b 0.053; median error same-pixel 0.0534, other 0.0458; usable same-pixel 0.786, other 0.810 | whole field same pixel 0.003
+runs/dolly-1 ahead  stride  5: fovea 101514 samples, same pixel in a and b 0.053; median error same-pixel inf, other 0.1548; usable same-pixel 0.000, other 0.331 | whole field same pixel 0.003
+runs/dolly-1 target stride 10: fovea 89429 samples, same pixel in a and b 0.013; median error same-pixel 0.0235, other 0.0257; usable same-pixel 1.000, other 0.961 | whole field same pixel 0.001
+runs/dolly-1 ahead  stride 10: fovea 89429 samples, same pixel in a and b 0.013; median error same-pixel inf, other 0.0927; usable same-pixel 0.000, other 0.535 | whole field same pixel 0.001
