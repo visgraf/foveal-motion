@@ -16,6 +16,7 @@ Decisions (Luiz, 2026-11-12, in Chat):
 | M-D3 | The first test | the head moves straight from the back of the Classroom to the front, near the board |
 | M-D4 | Where the eye looks during it | both, as two runs of the same path: fixating the board centre (`target`) and straight ahead (`ahead`) |
 | M-D5 | Path and height | yarbus-agent's measured placements, back_of_room → near_board, at standing height 1.6 m |
+| M-D6 | The dolly's hole limit (Luiz, 2026-11-12, issue #1) | 0.046 in `paths/classroom_dolly.json`: the scene's 0.025 failed at heads 6–46 (0.0250–0.0383), every hole on the right-hand window band; the measured maximum plus about a fifth, as D18 |
 
 ## Experiment M1, the dolly
 
