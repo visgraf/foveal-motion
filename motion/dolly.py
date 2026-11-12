@@ -175,6 +175,7 @@ def checks(a) -> int:
     rd = Path(a.run)
     np.savez_compressed(rd / "flow.npz", **{f"{m}__{k}": v for m, F in flow.items() for k, v in F.items()})
     out = {"schema": "foveal-motion-checks-v1", "run": str(rd), "git": r["git"], "device": r.get("device"),
+           "computed_by": {"foveal-motion": _git(REPO), "fov-render": _git(FOV_RENDER)},
            "step_m": paths.step_m(r["path"]), "checks": res, "flow_by_eccentricity": summary}
     (rd / "checks.json").write_text(json.dumps(out, indent=1))
     allok = True
@@ -205,6 +206,8 @@ def depth_cmd(a) -> int:
     np.savez_compressed(rd / "depth_examples.npz", **examples)
     step = paths.step_m(r["path"])
     out = {"schema": "foveal-motion-depth-v1", "run": str(rd), "git": r["git"], "device": r.get("device"),
+           "computed_by": {"foveal-motion": _git(REPO), "fov-render": _git(FOV_RENDER)},
+           "note_git": "git: the commits that rendered the run; computed_by: the code that computed this file",
            "step_m": step, "usable_rel": depth.USABLE_REL, "strides": list(a.strides), "check": check,
            "target_w": r["path"]["target_w"], "summary": summary}
     (rd / "depth.json").write_text(json.dumps(out, indent=1))
@@ -212,15 +215,20 @@ def depth_cmd(a) -> int:
     print(f"{PREFIX} {check['id']} {'PASS' if check['ok'] else 'FAIL'}  control "
           f"{'fails' if check['control_fails'] else 'DOES NOT FAIL'}  {check['what']}: {json.dumps(check['detail'])}")
     print(f"{PREFIX} range from motion, pixel-limited: median relative error | usable (<= {depth.USABLE_REL:.0%}) "
-          f"by eccentricity")
+          f"by eccentricity; fovea: error, bracket (what the pixel supports), same-pixel share; "
+          f"model: median error / (range sqrt(omega_a/12) / (|T| sin psi)), 0.87 for rounding alone")
     for mode, d in summary.items():
         for key, s in d.items():
             def g(v):
                 return "-" if v is None else f"{v:.3f}"
             cells = [f"{x['bin'][0]:g}-{x['bin'][1]:g}: {g(x['median_rel'])}|{g(x['usable_fraction'])}"
                      for x in s["by_eccentricity"]]
+            fv = s["fovea_2deg"]
             print(f"        {mode:6s} {s['stride'] * step:4.2f} m  " + "  ".join(cells)
-                  + f"   fovea<2deg {g(s['fovea_2deg']['median_rel'])}|{g(s['fovea_2deg']['usable_fraction'])}"
+                  + f"   fovea<2deg {g(fv['median_rel'])}|{g(fv['usable_fraction'])}"
+                  + f" bracket {g(fv['median_bracket'])}|{g(fv['usable_bracket_fraction'])}"
+                  + f" same px {g(fv['same_pixel_fraction'])}"
+                  + f"   field usable {s['usable_fraction']:.3f} bracket {s['usable_bracket_fraction']:.3f}"
                   + f"   no range {s['no_range_fraction']:.2f}   measured/model {g(s['median_measured_over_pred'])}")
     print(f"{PREFIX} {'PASS' if good else 'NOT PASS'} -> {rd / 'depth.json'}")
     return 0 if good else 1

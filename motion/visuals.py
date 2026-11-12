@@ -157,14 +157,17 @@ def depth_figure(run: dict, vis: Path) -> Path:
             mid = [0.5 * sum(r["bin"]) for r in e]
             a1.plot(mid, [r["median_rel"] for r in e], styles[j % 4], marker="o", ms=3, color=colors.get(m), label=lab)
             a2.plot(mid, [r["usable_fraction"] for r in e], styles[j % 4], marker="o", ms=3, color=colors.get(m), label=lab)
+            if all("usable_bracket_fraction" in r for r in e):
+                a2.plot(mid, [r["usable_bracket_fraction"] for r in e], styles[j % 4], color=colors.get(m), alpha=0.35,
+                        lw=2.5)
             q = [r for r in s["by_psi"] if r["median_rel"] is not None]
             mq = [0.5 * sum(r["bin"]) for r in q]
             a3.plot(mq, [r["median_rel"] for r in q], styles[j % 4], marker="o", ms=3, color=colors.get(m), label=lab)
             a3.plot(mq, [r["median_pred"] for r in q], styles[j % 4], color="0.6", lw=0.8)
     a1.set(yscale="log", xlabel="eccentricity in look b (deg)", ylabel="median relative range error",
            title="range from motion, pixel-limited")
-    a2.set(xlabel="eccentricity in look b (deg)", ylabel=f"usable fraction (error <= {dj['usable_rel']:.0%}) of all hits",
-           title="where depth is usable", ylim=(0, 1))
+    a2.set(xlabel="eccentricity in look b (deg)", ylabel=f"usable fraction of all hits (<= {dj['usable_rel']:.0%})",
+           title="usable: by error (thin), by bracket (wide, pale)", ylim=(0, 1))
     a3.set(xscale="log", yscale="log", xlabel="angle from the heading, psi (deg)", ylabel="median relative range error",
            title="against the precision model (grey)")
     for a_ in (a1, a2, a3):

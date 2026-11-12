@@ -13,14 +13,31 @@ For each pair of looks (a, b = a + stride) and each surface sample of look b:
                     whether a sees it there (M1.3's agreement: occluded points have no match)
     pixel           the measurement: the ray through b's pixel centre and the ray through the
                     centre of the pixel of a that P projects to; triangulated (closest point of the
-                    two rays), giving the range along b's ray. When both pixels see the same direction
-                    (the flow is under about half a pixel) there is no range: error inf, not usable
+                    two rays), giving the range along b's ray. When the two rays are parallel there
+                    is no range (error inf, not usable): the same pixel in both looks with no eye
+                    rotation between them, as looking ahead
+    same pixel      P lands on the same raster pixel in both looks: the flow is under half a pixel.
+                    That is still a measurement. Without eye rotation it bounds the range from below
+                    only (no range); under fixation the rays through one pixel cross on the surface of
+                    zero flow through the fixated point, and the range is bounded on both sides
+                    (Code's finding, issue #3). Reported as same_pixel_fraction
+    bracket         what the measurement supports, whatever the error happens to be: the ranges along
+                    b's ray whose projection into a stays inside the matched pixel (the epipolar curve
+                    linearised at the estimate, the pixel a unit square in raster coordinates), as a
+                    relative half-width. inf without a range. usable_bracket counts bracket <= USABLE_REL
     exact           the same with the exact directions to P: must give |P - c_b| (check M2.1)
     truth           |P - c_b|, P from b's Position pass
 
 The precision model, to compare with: rel. error ~ range * sigma / (|T| sin psi), with psi the angle
 between b's ray and the baseline T (psi = 0 at the focus of expansion) and sigma the rounding error of
-the two pixels, sqrt((omega_a + omega_b) / 12) (omega = pixel solid angle).
+look a's pixel, sqrt(omega_a / 12) (omega = pixel solid angle): b's sample is its own pixel's centre and
+its Position, the pixel's mean, lies on that centre's ray to first order, so only a rounds (Code's
+hypothesis, issue #3). Rounding uniform in a square pixel has variance p^2 / 12 along any direction,
+and for uniform errors median |error| = 0.87 sigma: measured/model near 0.87 means rounding explains
+the error; well under it, that the true points sit near the pixels' centres (as on a surface near the
+zero-flow surface); over it, other error (depth edges, curvature, the linearisation).
+(The model used sqrt((omega_a + omega_b) / 12) until issue #3's review: ratios from before are lower,
+by 1.42-1.54 in the calibration room's runs, Chat sandbox.)
 
     M2.1  exact triangulation returns the true range: relative error <= 1e-6 wherever the two exact
           rays are at least 0.01 deg apart; control: look a's eye centre 1 cm along the path, which
@@ -55,6 +72,26 @@ def triangulate(ca, da, cb, db):
     return t, np.degrees(np.arccos(np.clip(b, -1.0, 1.0)))
 
 
+def _bracket(model, Ra, ca, cb, db, t, eps: float = 1e-4):
+    """Relative half-width of the ranges along cb + r db whose projection into look a stays in the pixel
+    the estimate t projects to: the epipolar curve linearised at t, the pixel a unit square centred
+    on the curve. inf where t is not a range."""
+    out = np.full(t.shape, np.inf)
+    ok = np.isfinite(t) & (t > 0)
+    if not ok.any():
+        return out
+    tt = t[ok][:, None]
+    rp, _, _, _ = analysis._project(model, Ra, ca, cb + tt * (1 + eps) * db[ok])
+    rm, _, _, _ = analysis._project(model, Ra, ca, cb + tt * (1 - eps) * db[ok])
+    g = (rp - rm) / (2 * eps * tt)                       # raster px per metre along b's ray
+    gn = np.linalg.norm(g, axis=-1)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        u = g / gn[:, None]
+        h = 0.5 / np.max(np.abs(u), axis=-1)             # half the pixel's extent along the curve
+        out[ok] = np.where(gn > 0, h / gn / tt[:, 0], np.inf)
+    return out
+
+
 def _rel(t, truth):
     """|t - truth| / truth; inf where the rays give no range (parallel: the two pixels see the same
     direction, or the closest point is behind b)."""
@@ -70,7 +107,7 @@ def pair_depth(la, lb, *, shift_a=None) -> dict:
     """Per hit sample of look b: truth, pixel and exact ranges, eccentricity, psi, predicted error.
     la, lb: analysis.load_look tuples. shift_a: a wrong offset of a's eye centre (the control)."""
     rec_a, Ra, ca, model = la
-    rec_b, Rb, cb, _ = lb
+    rec_b, Rb, cb, model_b = lb
     hit = np.flatnonzero(np.isfinite(rec_b.distance_m))
     P = rec_b.position_w[hit]
     truth = np.linalg.norm(P - cb, axis=-1)
@@ -90,13 +127,17 @@ def pair_depth(la, lb, *, shift_a=None) -> dict:
     t_ex, par_ex = triangulate(ca_used, _unit(P[m] - ca), cb, _unit(P[m] - cb))
     T = cb - ca
     psi = np.degrees(np.arctan2(np.linalg.norm(np.cross(db, T), axis=-1), db @ T))
-    sigma = np.sqrt((rec_a.footprint_sr[s[m]] + rec_b.footprint_sr[hit[m]]) / 12.0)
+    sigma = np.sqrt(rec_a.footprint_sr[s[m]] / 12.0)
+    same = (model_b.n == n) & (s[m] >= 0)
+    same = same & (rec_a.raster_index[s[m]] == rec_b.raster_index[hit[m]])
+    bracket = _bracket(model, Ra, ca_used, cb, db, t_pix)
     with np.errstate(divide="ignore"):
         pred = truth[m] * sigma / (np.linalg.norm(T) * np.sin(np.radians(psi)))
     ecc = analysis.eccentricity_deg(rec_b.direction[hit] @ Rb)
     return {"n_hits": len(hit), "ecc_all": ecc, "matched": m, "truth": truth[m], "ecc": ecc[m], "psi": psi,
             "rel_pix": _rel(t_pix, truth[m]), "rel_exact": _rel(t_ex, truth[m]),
-            "parallax_exact_deg": par_ex, "parallax_pix_deg": par_pix, "pred": pred,
+            "parallax_exact_deg": par_ex, "parallax_pix_deg": par_pix, "pred": pred, "same": same,
+            "bracket": bracket,
             "raster_b": rec_b.raster_index[hit[m]], "raster_shape": rec_b.raster_shape}
 
 
@@ -119,15 +160,19 @@ def _bins(x, edges, rows_of):
     return out
 
 
-def _stats(rel, pred, usable_den):
+def _stats(rel, pred, bracket, same):
     def f(sel, den_sel=None):
         r = rel[sel]
         den = int(den_sel.sum()) if den_sel is not None else int(sel.sum())
         return {"n": int(sel.sum()),
                 "median_rel": _q(r, 0.5), "p90_rel": _q(r, 0.9),
                 "median_pred": float(np.median(pred[sel])) if r.size else None,
-                "usable": int((r <= USABLE_REL).sum()), "of": den,
-                "usable_fraction": float((r <= USABLE_REL).sum() / den) if den else None}
+                "median_bracket": _q(bracket[sel], 0.5),
+                "same_pixel_fraction": float(same[sel].mean()) if r.size else None,
+                "usable": int((r <= USABLE_REL).sum()), "usable_bracket": int((bracket[sel] <= USABLE_REL).sum()),
+                "of": den,
+                "usable_fraction": float((r <= USABLE_REL).sum() / den) if den else None,
+                "usable_bracket_fraction": float((bracket[sel] <= USABLE_REL).sum() / den) if den else None}
     return f
 
 
@@ -142,14 +187,14 @@ def run_depth(run: dict, strides=STRIDES, example_stride: int = 5):
         ks = sorted(loads)
         side = None
         for stride in strides:
-            acc = {k: [] for k in ("ecc", "psi", "rel", "pred", "ecc_all")}
+            acc = {k: [] for k in ("ecc", "psi", "rel", "pred", "ecc_all", "bracket", "same")}
             mid = ks[len(ks) // 2 - stride // 2] if len(ks) > stride else None
             for ka in ks:
                 kb = ka + stride
                 if kb not in loads:
                     continue
                 r = pair_depth(loads[ka], loads[kb])
-                for k in ("ecc", "psi", "pred", "ecc_all"):
+                for k in ("ecc", "psi", "pred", "ecc_all", "bracket", "same"):
                     acc[k].append(r[k])
                 acc["rel"].append(r["rel_pix"])
                 if stride == strides[0]:
@@ -169,7 +214,8 @@ def run_depth(run: dict, strides=STRIDES, example_stride: int = 5):
                 continue
             ecc, psi, rel, pred = (np.concatenate(acc[k]) for k in ("ecc", "psi", "rel", "pred"))
             ecc_all = np.concatenate(acc["ecc_all"])
-            f = _stats(rel, pred, None)
+            bracket, same = np.concatenate(acc["bracket"]), np.concatenate(acc["same"])
+            f = _stats(rel, pred, bracket, same)
             by_ecc = []
             for lo, hi in zip(ECC_BINS[:-1], ECC_BINS[1:]):
                 sel = (ecc >= lo) & (ecc < hi)
@@ -178,14 +224,21 @@ def run_depth(run: dict, strides=STRIDES, example_stride: int = 5):
                 n_all = int(((ecc_all >= lo) & (ecc_all < hi)).sum())
                 row["of"] = n_all                       # usable among ALL hits of b at that eccentricity
                 row["usable_fraction"] = float(row["usable"] / n_all) if n_all else None
+                row["usable_bracket_fraction"] = float(row["usable_bracket"] / n_all) if n_all else None
                 by_ecc.append(row)
             by_psi = _bins(psi, PSI_BINS, f)
             fov = ecc < 2.0
             summary.setdefault(mode, {})[f"stride_{stride}"] = {
                 "stride": stride, "pairs": len(acc["rel"]), "matched": int(rel.size), "hits": int(ecc_all.size),
                 "median_rel": _q(rel, 0.5), "usable_fraction": float((rel <= USABLE_REL).sum() / ecc_all.size),
+                "usable_bracket_fraction": float((bracket <= USABLE_REL).sum() / ecc_all.size),
+                "median_bracket": _q(bracket, 0.5), "same_pixel_fraction": float(same.mean()),
                 "fovea_2deg": {"n": int(fov.sum()), "median_rel": _q(rel[fov], 0.5),
-                               "usable_fraction": float((rel[fov] <= USABLE_REL).sum() / max(int((ecc_all < 2.0).sum()), 1))},
+                               "usable_fraction": float((rel[fov] <= USABLE_REL).sum() / max(int((ecc_all < 2.0).sum()), 1)),
+                               "median_bracket": _q(bracket[fov], 0.5),
+                               "usable_bracket_fraction": float((bracket[fov] <= USABLE_REL).sum()
+                                                                / max(int((ecc_all < 2.0).sum()), 1)),
+                               "same_pixel_fraction": float(same[fov].mean()) if fov.any() else None},
                 "no_range_fraction": float(np.isinf(rel).sum() / max(rel.size, 1)),
                 "median_measured_over_pred": _median_ratio(rel, pred),
                 "by_eccentricity": by_ecc, "by_psi": by_psi}

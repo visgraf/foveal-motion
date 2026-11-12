@@ -235,3 +235,38 @@ flow. Fixating the board centre, 2–6° off the heading, the eye turns too litt
 are same-pixel at 10 cm, with 21 % median error. Looking ahead the eye does not turn, so the rays are parallel and there is
 no range. The model counts pixel rounding only, so it does not describe the same-pixel range; that is why the measured /
 model ratio drops to 0.53 at 10 cm on the side run.
+
+**Chat's review of #3** (2026-11-12, from the records and the sandbox; nothing re-rendered).
+
+1. *Same pixel.* Code is right, and `motion/depth.py`'s docstring was wrong: rays through one pixel are parallel, so
+   give no range, only when the eye does not turn between the looks. A same-pixel match is itself a measurement, though:
+   the flow is under half a pixel. In inverse range it is an interval of the same width, about p / (|T| sin psi),
+   whether or not the eye turns. Looking ahead the interval is centred on 1/range = 0, so it bounds the range only from
+   below: no range. Fixating, it is centred on the zero-flow surface through the fixated point, so it bounds the range
+   on both sides. This is the active-vision argument that fixation makes depth well posed, relative to the fixated
+   point. The fixating estimate is therefore legitimate. What was missing is how much the measurement supports,
+   whatever the error happened to be. On the side run's fovea at 10 cm the error came out under what rounding allows
+   (measured/model 0.53 with the old model, about 0.75 with the corrected one, against 0.87 for rounding alone):
+   the map lies near the zero-flow surface, so its points sit near the pixels' centres. That is the geometry's luck,
+   not the sensor's precision.
+2. *What changed in `motion/depth.py`*. Each range now carries a **bracket**: the relative half-width of the ranges along
+   b's ray that project into the same pixel of a, the precision the measurement supports. `depth.json` reports its
+   median and `usable_bracket_fraction` (bracket ≤ 10 %) next to the error-based ones, and the **same-pixel fraction**.
+   The error-based numbers are unchanged: in the two sandbox runs all 882 compared values (medians, p90s, usable
+   counts and fractions, by eccentricity and by psi) are identical, as is M2.1. The model's sigma is now
+   sqrt(omega_a / 12), Code's hypothesis (b's Position is its pixel's mean, on the centre's ray to first order).
+   Uniform rounding then gives a measured/model ratio of 0.87; the sandbox gives 1.0–1.7, so beyond 10 cm steps the
+   errors are somewhat larger than rounding alone. `depth.json` and `checks.json` now record the code that computed
+   them (`computed_by`), next to the run's commits (`git`) (Code's provenance note).
+3. *The reading, with the bracket* (Chat sandbox, calibration room; fovea < 2°, bracket median | usable by bracket):
+
+   | run | 0.1 m | 0.5 m | 1.0 m |
+   |---|---|---|---|
+   | `ahead` | no range \| 0.00 | 0.594 \| 0.00 | 0.556 \| 0.00 |
+   | `target` near the path line (5–12° off) | 0.421 \| 0.02 | 0.106 \| 0.35 | 0.069 \| 0.80 |
+   | `target` off the path line (31–48° off) | 0.089 \| 0.64 | 0.019 \| 0.97 | 0.010 \| 0.97 |
+
+   The conclusion holds with the honest measure, but it is weaker at 10 cm. Fixating off the path line, the fovea
+   supports about 9 % from one 10 cm step, not 1–3 %, and about 2 % from 0.5 m. Looking ahead, the fovea supports
+   nothing usable at any stride. The Classroom's brackets are for Code to measure (`depth` again on both runs, no
+   rendering).
