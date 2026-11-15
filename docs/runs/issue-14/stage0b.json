@@ -1,0 +1,191 @@
+{
+ "J": 0.05,
+ "tilted": {
+  "summary": {
+   "J": 0.05,
+   "anchors": 48752,
+   "depth_edge": 223,
+   "accepted": 42211,
+   "depth_edge_share": 0.004574171316048572,
+   "classes": {
+    "discontinuity": {
+     "n": 4,
+     "share_of_depth_edge": 0.017937219730941704,
+     "err_px_median": 0.11023993534839163,
+     "err_px_p90": 0.186828750256018,
+     "over_1px": 0.0,
+     "rel_median": 0.0477061859160153,
+     "rel_p90": 0.11135927475627647
+    },
+    "azimuthal_slope": {
+     "n": 0,
+     "share_of_depth_edge": 0.0,
+     "err_px_median": null,
+     "err_px_p90": null,
+     "over_1px": null,
+     "rel_median": null,
+     "rel_p90": null
+    },
+    "curvature": {
+     "n": 0,
+     "share_of_depth_edge": 0.0,
+     "err_px_median": null,
+     "err_px_p90": null,
+     "over_1px": null,
+     "rel_median": null,
+     "rel_p90": null
+    },
+    "estimation": {
+     "n": 219,
+     "share_of_depth_edge": 0.9820627802690582,
+     "err_px_median": 0.12478419102681716,
+     "err_px_p90": 0.2920200884307452,
+     "over_1px": 0.0,
+     "rel_median": 0.016818978578014003,
+     "rel_p90": 0.04659885785666618
+    }
+   },
+   "accepted_err": {
+    "n": 42211,
+    "err_px_median": 0.016895530611249786,
+    "err_px_p90": 0.05335547087386908,
+    "over_1px": 0.0,
+    "rel_median": 0.003358474278131539,
+    "rel_p90": 0.011108557667701005
+   },
+   "detector": {
+    "1-5": {
+     "flagged": 4,
+     "true_edges_judged": 0,
+     "true_edges_all": 0,
+     "precision": 0.0,
+     "recall_of_judged": 0.0,
+     "recall_of_all": 0.0,
+     "base_rate_judged": 0.0
+    },
+    "5-15": {
+     "flagged": 19,
+     "true_edges_judged": 0,
+     "true_edges_all": 0,
+     "precision": 0.0,
+     "recall_of_judged": 0.0,
+     "recall_of_all": 0.0,
+     "base_rate_judged": 0.0
+    },
+    "15-30": {
+     "flagged": 29,
+     "true_edges_judged": 579,
+     "true_edges_all": 1031,
+     "precision": 0.06896551724137931,
+     "recall_of_judged": 0.0034542314335060447,
+     "recall_of_all": 0.0019398642095053346,
+     "base_rate_judged": 0.03953027923806923
+    },
+    "30-44": {
+     "flagged": 171,
+     "true_edges_judged": 379,
+     "true_edges_all": 3485,
+     "precision": 0.011695906432748537,
+     "recall_of_judged": 0.005277044854881266,
+     "recall_of_all": 0.0005738880918220947,
+     "base_rate_judged": 0.06582146578673151
+    },
+    "1-44": {
+     "flagged": 223,
+     "true_edges_judged": 958,
+     "true_edges_all": 4516,
+     "precision": 0.017937219730941704,
+     "recall_of_judged": 0.0041753653444676405,
+     "recall_of_all": 0.0008857395925597874,
+     "base_rate_judged": 0.02257623603714003
+    }
+   },
+   "accepted_true_edge_share": 0.02260074388192651
+  },
+  "accepted_dev_radial_px_q": [
+   0.04851626433805849,
+   0.10913283314818109,
+   0.13106325429957025
+  ],
+  "accepted_dev_plane_px_q": [
+   0.007905074069826537,
+   0.0211926049292477,
+   0.03440566761964677
+  ]
+ },
+ "both5": {
+  "1-5": {
+   "precision": 0.5088372580898936,
+   "recall_of_judged": 0.8277450729459944,
+   "base_rate_judged": 0.29542533081285444,
+   "flagged": 19067,
+   "true_edges_judged": 11721
+  },
+  "5-15": {
+   "precision": 0.4931749785038693,
+   "recall_of_judged": 0.8115254237288135,
+   "base_rate_judged": 0.3227386886867841,
+   "flagged": 55824,
+   "true_edges_judged": 33925
+  },
+  "15-30": {
+   "precision": 0.5544469783352337,
+   "recall_of_judged": 0.6427820339492264,
+   "base_rate_judged": 0.31568913843469026,
+   "flagged": 38588,
+   "true_edges_judged": 33285
+  },
+  "30-44": {
+   "precision": 0.4296965626717138,
+   "recall_of_judged": 0.47073774329476287,
+   "base_rate_judged": 0.2892995356037152,
+   "flagged": 16379,
+   "true_edges_judged": 14951
+  },
+  "1-44": {
+   "precision": 0.5056754300851699,
+   "recall_of_judged": 0.6994525042074093,
+   "base_rate_judged": 0.310963309893444,
+   "flagged": 129858,
+   "true_edges_judged": 93882
+  }
+ },
+ "before5": {
+  "1-5": {
+   "precision": 0.32540108546549773,
+   "recall_of_judged": 0.884852416477457,
+   "base_rate_judged": 0.27955477977013576,
+   "flagged": 33534,
+   "true_edges_judged": 12332
+  },
+  "5-15": {
+   "precision": 0.362235771956004,
+   "recall_of_judged": 0.9139758134895898,
+   "base_rate_judged": 0.29643290068888034,
+   "flagged": 101191,
+   "true_edges_judged": 40105
+  },
+  "15-30": {
+   "precision": 0.5269807881082597,
+   "recall_of_judged": 0.8809780570142536,
+   "base_rate_judged": 0.31067282341116664,
+   "flagged": 71310,
+   "true_edges_judged": 42656
+  },
+  "30-44": {
+   "precision": 0.4350455136540962,
+   "recall_of_judged": 0.6808445688120072,
+   "base_rate_judged": 0.29059108785002513,
+   "flagged": 30760,
+   "true_edges_judged": 19655
+  },
+  "1-44": {
+   "precision": 0.4160898667623894,
+   "recall_of_judged": 0.8586467737999791,
+   "base_rate_judged": 0.2985546839428118,
+   "flagged": 236795,
+   "true_edges_judged": 114748
+  }
+ },
+ "seconds": 92.3
+}

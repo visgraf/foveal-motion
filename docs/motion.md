@@ -801,3 +801,74 @@ windows. O-M's `pixel` rung is not #7's O2: O-M uses half a pixel as σ, O2 used
 **Gaps:**
 - The M4 records do not name the device or torch build that ran the matcher (Code's step-1 log does).
 - torch is not in `requirements.txt`.
+
+## M5: depth edges (#13, M-D17)
+
+### Stage 0: what M4's depth-edge test rejects (#14, Chat sandbox)
+
+**Data:** development data only (M-D17): M4's estimates on the calibration room's calibration frames (both5: 9
+references, before5: 12) and the fixtures. Code: [`m5_diagnosis.py`](../motion/m5_diagnosis.py). Scripts, records and
+logs: [`runs/issue-14/`](runs/issue-14/) (`stage0*.py`, `.json`, `.log`).
+
+**What the test is.** It is not radial. For each candidate anchor, every other candidate in its 7 × 7 native
+neighbourhood is predicted from the anchor's ζ plus its *radial* slope only. The anchor is rejected when one
+neighbour misses by more than 0.5 px (of the longest step).
+
+**Classes.** The diagnosis applies the same statistic to the true inverse depth and sorts each rejection:
+1. **discontinuity:** the block's true range jumps by more than J between adjacent pixels;
+2. **(a) azimuthal slope:** no jump, and the truth trips the radial-only model but not a plane in (q, φ);
+3. **(b) curvature:** no jump, and even that plane misses;
+4. **estimation:** no jump, and the truth would pass, so the estimates tripped the test.
+
+**Controls** (fixtures, both5):
+- On the plane `front`, all 236 rejections are class 3 and none is a discontinuity, as must be.
+- On `occlusion`, 487 of 872 are discontinuities: the classifier finds edges where there are some.
+
+**The room** ([`stage0_r0010.png`](runs/issue-14/stage0_r0010.png)) is about 40 flat panels at about 2 m in front of
+walls at about 5.5 m, so most of its depth edges are 170 % jumps. Among adjacent pixel pairs (r = 10), the relative range
+change has median 0.12 % and p90 1.9 %, and 3.1 % of pairs exceed 5 %.
+
+| J = 5 % | both5 | before5 |
+|---|---|---|
+| `depth_edge` share of anchors | 0.296 | 0.405 |
+| discontinuity, share of rejections | **0.749** | 0.632 |
+| — its error if accepted: median / p90 / > 1 px | 0.27 px / 3.8 px / 39 % | 0.27 px / 4.4 px / 34 % |
+| estimation, share of rejections | **0.251** | 0.368 |
+| — its error if accepted: median / p90 / > 1 px | 0.09 px / 0.39 px / 0.5 % | 0.12 px / 0.47 px / 1.1 % |
+| — relative range error: median / p90 | 2.7 % / 12 % | 3.6 % / 16 % |
+| azimuthal slope, curvature | 0 | 0 |
+| accepted anchors (comparison): median / p90 / > 1 px | 0.022 px / 0.15 px / 5.8 % | 0.042 px / 0.14 px / 2.5 % |
+
+- The shares move by at most 8 points for J from 1 % to 10 % (`stage0.json`).
+- `accepted, > 1 px` is high in both5 (5.8 %) because a few accepted anchors carry large errors: the accepted p90 is
+  0.15 px.
+
+**Slope and curvature never trip the test.** On the tilted fixture (a plane at 50°, strong azimuthal slope):
+- 219 of its 223 rejections are estimation; the remaining 4 are the plane's own boundary;
+- over its accepted anchors, the true radial-only statistic is at most 0.13 px (q99), well under 0.5 px.
+
+At 7 × 7 px a surface would have to bend sharply to matter. So M5 needs no curvature term for coverage on the
+development data.
+
+**M4's flag as an edge detector.** Truth here is a jump > 5 % within the anchor's 3 × 3 (the anchor touches the
+discontinuity). The flag is a near-edge detector: it fires within about ±3 px of a jump.
+
+| | precision, both5 | recall of judged, both5 | precision, before5 | recall of judged, before5 | base rate |
+|---|---|---|---|---|---|
+| 1–5° | 0.51 | 0.83 | 0.33 | 0.89 | 0.28–0.30 |
+| 5–15° | 0.49 | 0.81 | 0.36 | 0.91 | 0.30–0.32 |
+| 15–30° | 0.55 | 0.64 | 0.53 | 0.88 | 0.31 |
+| 30–44° | 0.43 | 0.47 | 0.44 | 0.68 | 0.29 |
+| all | **0.51** | **0.70** | 0.42 | 0.86 | 0.30–0.31 |
+
+(Against the coarser 7 × 7 truth: both5 precision 0.75, recall 0.65, base rate 0.50.)
+
+**Reading:**
+- Three quarters of both5's `depth_edge` rejections sit on real depth discontinuities. They would be poor if
+  accepted (39 % over 1 px), so the test is right to reject them as M4 measures. Recovering them needs a matcher that
+  keeps its window on one side of the edge.
+- One quarter are tripped by the estimates, not the geometry. A fixed 0.5 px tolerance ignores how uncertain the
+  neighbours are. Those anchors are mostly measurable (p90 0.39 px), though less precise than the accepted ones.
+- No slope or curvature case exists here, so the curvature term allowed by M-D17 is not needed on this evidence.
+- As an edge detector, M4's flag localizes poorly (precision 0.51 against a 0.31 base rate), and it misses edges at
+  30–44°. That is the baseline E1–E2 must beat.

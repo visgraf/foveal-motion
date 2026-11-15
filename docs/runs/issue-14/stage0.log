@@ -1,0 +1,4 @@
+[s0] fixture front: depth_edge 236 of 48752; classes (J 5 %) {"discontinuity": 0, "azimuthal_slope": 0, "curvature": 0, "estimation": 236}  (92 s)
+[s0] fixture occlusion: depth_edge 872 of 48752; classes (J 5 %) {"discontinuity": 487, "azimuthal_slope": 0, "curvature": 0, "estimation": 385}  (203 s)
+[s0] both5: done (213 s)
+[s0] before5: done (226 s)
