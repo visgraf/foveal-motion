@@ -872,3 +872,52 @@ discontinuity). The flag is a near-edge detector: it fires within about ±3 px o
 - No slope or curvature case exists here, so the curvature term allowed by M-D17 is not needed on this evidence.
 - As an edge detector, M4's flag localizes poorly (precision 0.51 against a 0.31 base rate), and it misses edges at
   30–44°. That is the baseline E1–E2 must beat.
+
+### Stage 1, first iteration: shiftable windows (#14, Chat sandbox, development data)
+
+**The matcher.** [`m5.py`](../motion/m5.py) runs M4's frozen matcher unchanged, then:
+1. replaces its edge test by an uncertainty-aware one;
+2. refits anchors that still fail with M4's own joint Gauss–Newton, its window moved wholly to one side (out, in,
+   right, left), each side started from accepted neighbours on that side;
+3. if the valid sides agree, recovers the anchor; if two disagree, flags an edge with its front side and the depth of
+   each side.
+
+M4's files are untouched: `shifted_patch` swaps M4's window for one call. Self-test, all passing (Chat sandbox):
+- the centred swap reproduces M4's `joint_fit` bit for bit;
+- the shifted window spans the expected offsets;
+- M4's window is restored;
+- control: the out window changes the fit.
+
+**Probe** on one calibration frame, r = 10, both5 (development data, M-D17; scripts and logs in
+[`stage1/`](runs/issue-14/stage1/), 88 s). Interior means more than 2 px from an object boundary, the gates' domain.
+
+| anchors | n | error median / p90 | > 1 px | relative p90 |
+|---|---|---|---|---|
+| M4 accepted, interior | 14,620 | 0.017 / 0.082 px | 0.8 % | 2.4 % |
+| recovered by side windows, interior | 4,885 | 0.045 / 0.32 px | 4.1 % | 9.4 % |
+| recovered by side windows, edge band | 5,997 | 0.19 / 3.9 px | 42 % | 57 % |
+| recovered by the uncertainty-aware test | 89 | 1.4–2.3 px (median) | 52–77 % | — |
+| M4 accepted, edge band | 4,600 | 0.055 / 3.8 px | 23 % | 55 % |
+
+On interior hits, M4 plus side recovery covers 0.601 against M4's 0.451:
+- median relative error 0.59 % (M4 0.49 %), p90 4.0 % (M4 2.4 %);
+- errors over 50 %: 0.88 % (M4 0.39 %).
+
+Requiring two agreeing sides changes little (0.580, p90 3.5 %, 0.87 %).
+
+Edges: 871 flagged.
+- precision 0.51, recall of judged edges 0.04;
+- front side right 0.60, measured against the centre-ray truth of the half-blocks.
+
+**Reading:**
+- **Coverage:** side windows recover a third more interior anchors, well inside both gates' accuracy. Their outliers
+  double, and that needs explaining before a freeze.
+- **The uncertainty-aware test recovers the wrong anchors** (large σ, real misfits). It goes; the 25 % that Stage 0
+  called estimation are recovered by the side windows instead.
+- **Edge-band truth is ill-defined at one ray per pixel.** A pixel on an edge mixes two surfaces over its footprint,
+  while the truth reads one centre ray. Even M4's accepted edge-band anchors are 23 % over 1 px. At those pixels the
+  depth is closer to the ray truth only 1.5 % of the time, judged by photo-consistency (the pixel's agreement across
+  the 10 frames, `photo_consistency_r10.log`). The edge deliverable's E3–E4 truth should therefore be the two
+  surfaces' depths in the neighbourhood (near and far), not the centre ray.
+- **Edge recall is low** because an edge needs two valid, disagreeing sides. At an edge the far side seldom has
+  accepted neighbours to start from, so it is never tried.

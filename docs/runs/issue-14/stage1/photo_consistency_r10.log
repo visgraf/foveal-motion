@@ -1,0 +1,6 @@
+PC at the chosen zeta: M4-accepted (sample) [0.038, 0.138, 0.915]  side-recovered good (<0.5 px) 7972 [0.039, 0.149, 1.269]  bad (>1 px) 2689 [0.053, 0.29, 4.166]
+AUC (PC separates bad from good): 0.627
+bad ones: PC at the TRUE zeta [1.23, 4.246, 105.518]  share where PC(true) < PC(chosen): 0.015247303830420231
+  threshold PC <= 0.5: keeps good 0.767, bad 0.616, M4-accepted 0.814
+  threshold PC <= 1.0: keeps good 0.870, bad 0.715, M4-accepted 0.907
+  threshold PC <= 2.0: keeps good 0.946, bad 0.804, M4-accepted 0.959

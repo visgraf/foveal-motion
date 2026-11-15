@@ -1,0 +1,15 @@
+time 88 s
+M4 accepted 0.394  M5 accepted 0.619  (M4-accepted anchors unchanged: True; M4-accepted now rejected: 0)
+  M4 accepted        n  19220  err px med 0.022 p90 0.152 >1px 0.061  rel med 0.0058 p90 0.0462  on-edge share 0.163
+  recovered: sigma   n     89  err px med 2.174 p90 3.560 >1px 0.640  rel med 0.2883 p90 0.5487  on-edge share 0.438
+  recovered: side    n  10882  err px med 0.084 p90 3.746 >1px 0.247  rel med 0.0203 p90 0.5546  on-edge share 0.484
+edges flagged 871  precision 0.505  recall(judged) 0.043  base rate 0.308
+still depth_edge 2262 (0.046); valid sides among them: [2262, 0, 0, 0, 0]
+front side right (true front-half median zeta > back-half): 0.626 of 871
+front depth err px med 0.500 p90 4.257; back depth err px med 0.566 p90 3.425
+  (on true edges only: front right 0.602; front err med 0.973, back err med 1.773)
+side-recovered with 1 valid side(s): n 1311  >1px 0.246  med 0.149  on-edge 0.447
+side-recovered with 2 valid side(s): n 3403  >1px 0.336  med 0.150  on-edge 0.558
+side-recovered with 3 valid side(s): n 4039  >1px 0.239  med 0.071  on-edge 0.487
+side-recovered with 4 valid side(s): n 2129  >1px 0.121  med 0.035  on-edge 0.381
+sigma-recovered: M4 sigma px median 0.1259033255913332 vs M4 accepted 0.030558679193735484

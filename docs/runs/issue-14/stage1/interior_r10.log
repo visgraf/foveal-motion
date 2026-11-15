@@ -1,0 +1,14 @@
+M4 accepted      interior                       n  14620  err px med 0.017 p90 0.082 >1px 0.008  rel med 0.0049 p90 0.0238
+M4 accepted      edge (<= 2 px of a boundary)   n   4600  err px med 0.055 p90 3.776 >1px 0.228  rel med 0.0125 p90 0.5490
+side-recovered   interior                       n   4885  err px med 0.045 p90 0.317 >1px 0.041  rel med 0.0135 p90 0.0937
+side-recovered   edge (<= 2 px of a boundary)   n   5997  err px med 0.188 p90 3.946 >1px 0.415  rel med 0.0377 p90 0.5667
+sigma-recovered  interior                       n     46  err px med 1.447 p90 3.506 >1px 0.522  rel med 0.2043 p90 0.5458
+sigma-recovered  edge (<= 2 px of a boundary)   n     43  err px med 2.281 p90 3.561 >1px 0.767  rel med 0.2962 p90 0.5482
+-- side-recovered interior, by number of valid sides:
+   1: n   675  >1px 0.039  rel p90 0.1460
+   2: n  1306  >1px 0.057  rel p90 0.1249
+   3: n  1806  >1px 0.039  rel p90 0.0759
+   4: n  1098  >1px 0.027  rel p90 0.0419
+interior M4 alone                   n  14620 (0.451 of interior hits)  rel med 0.0049 p90 0.0238  >50% 0.0039  >1px 0.0083
+interior M4 + side (all)            n  19505 (0.601 of interior hits)  rel med 0.0059 p90 0.0400  >50% 0.0088  >1px 0.0166
+interior M4 + side (>= 2 agreeing)  n  18830 (0.580 of interior hits)  rel med 0.0057 p90 0.0353  >50% 0.0087  >1px 0.0158
